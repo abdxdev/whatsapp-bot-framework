@@ -6,33 +6,30 @@ import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from 
 import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/client";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export function SignupForm({ className, ...props }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess(false);
     setLoading(true);
 
     // Validate passwords match
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      toast.error("Passwords do not match");
       setLoading(false);
       return;
     }
 
     // Validate password length
     if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+      toast.error("Password must be at least 6 characters");
       setLoading(false);
       return;
     }
@@ -49,20 +46,18 @@ export function SignupForm({ className, ...props }) {
     });
 
     if (error) {
-      if (error.message.includes("already registered")) {
-        setError("This email is already registered. Please sign in instead.");
-      } else if (error.message.includes("User already registered")) {
-        setError("This email is already registered. Please sign in instead.");
+      if (error.message.includes("already registered") || error.message.includes("User already registered")) {
+        toast.error("This email is already registered. Please sign in instead.");
       } else {
-        setError(error.message);
+        toast.error(error.message);
       }
       setLoading(false);
     } else {
       if (data?.user?.identities?.length === 0) {
-        setError("This email is already registered. Please sign in instead.");
+        toast.error("This email is already registered. Please sign in instead.");
         setLoading(false);
       } else {
-        setSuccess(true);
+        toast.success("Check your email for a verification link!");
         setLoading(false);
         setName("");
         setEmail("");
@@ -81,7 +76,7 @@ export function SignupForm({ className, ...props }) {
     });
 
     if (error) {
-      setError(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -111,8 +106,6 @@ export function SignupForm({ className, ...props }) {
           <Input id="confirm-password" type="password" required minLength={6} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
           <FieldDescription>Please confirm your password.</FieldDescription>
         </Field>
-        {error && <div className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 p-3 rounded-md">{error}</div>}
-        {success && <div className="text-green-600 text-sm bg-green-50 dark:bg-green-900/20 p-3 rounded-md">Check your email for a verification link!</div>}
         <Field>
           <Button type="submit" disabled={loading}>
             {loading ? "Creating Account..." : "Create Account"}

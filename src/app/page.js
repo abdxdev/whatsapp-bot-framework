@@ -5,74 +5,71 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Logo } from "@/components/logo";
 import { createClient } from "@/lib/supabase/server";
-import { SignOutButton } from "@/components/signout-button";
+import { UserAvatarDropdown } from "@/components/user-avatar-dropdown";
 
 export default async function Home() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   return (
-    <main className="min-h-screen p-4 md:p-6 flex items-center justify-center">
-      <header className="relative">
-        <div className="container mx-auto px-4">
-          <nav className="px-0 py-4">
-            <div className="relative flex items-center">
-              <Link href="/" className="flex items-center gap-2 text-lg font-bold">
-                <Logo className="size-6 text-primary" />
-                Whatsapp Bot Framework
-              </Link>
-              <div className="absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 lg:block">
-                <ul className="mt-4 flex flex-col gap-1 lg:mt-0 lg:flex-row lg:items-center lg:gap-1">
-                  <li>
-                    <Link href="#" className="text-muted-foreground hover:text-foreground hover:bg-secondary flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors">
-                      <Files className="h-4 w-4" />
-                      Pages
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="#" className="text-muted-foreground hover:text-foreground hover:bg-secondary flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors">
-                      <User className="h-4 w-4" />
-                      Account
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="#" className="text-muted-foreground hover:text-foreground hover:bg-secondary flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors">
-                      <Box className="h-4 w-4" />
-                      Blocks
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="#" className="text-muted-foreground hover:text-foreground hover:bg-secondary flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors">
-                      <FileText className="h-4 w-4" />
-                      Docs
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-              <div className="ml-auto hidden items-center gap-2 lg:flex">
-                {user ? (
-                  <>
-                    <Button variant="ghost" size="sm" asChild>
-                      <Link href="/dashboard">Dashboard</Link>
-                    </Button>
-                    <SignOutButton />
-                  </>
-                ) : (
-                  <>
-                    <Button variant="ghost" size="sm" asChild>
-                      <Link href="/login">Sign In</Link>
-                    </Button>
-                    <Button size="sm" asChild>
-                      <Link href="/signup">Get Started</Link>
-                    </Button>
-                  </>
-                )}
-              </div>
-              <Button variant="ghost" size="sm" className="ml-auto grid lg:hidden">
-                <Menu className="h-5 w-5" />
-              </Button>
+    <main className="min-h-screen">
+      <header className="fixed top-0 inset-x-0 z-50 p-4">
+        <nav className="mx-auto max-w-5xl rounded-full border border-border/40 bg-background/60 backdrop-blur-xl px-4 py-2 shadow-lg">
+          <div className="relative flex items-center">
+            <Link href="/" className="flex items-center gap-2 text-lg font-bold">
+              <Logo className="size-6 text-primary" />
+              Whatsapp Bot Framework
+            </Link>
+            <div className="absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 lg:block">
+              <ul className="mt-4 flex flex-col gap-1 lg:mt-0 lg:flex-row lg:items-center lg:gap-1">
+                <li>
+                  <Link href="#" className="text-muted-foreground hover:text-foreground hover:bg-secondary flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors">
+                    <Files className="h-4 w-4" />
+                    Pages
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="text-muted-foreground hover:text-foreground hover:bg-secondary flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors">
+                    <User className="h-4 w-4" />
+                    Account
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="text-muted-foreground hover:text-foreground hover:bg-secondary flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors">
+                    <Box className="h-4 w-4" />
+                    Blocks
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="text-muted-foreground hover:text-foreground hover:bg-secondary flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors">
+                    <FileText className="h-4 w-4" />
+                    Docs
+                  </Link>
+                </li>
+              </ul>
             </div>
-          </nav>
-        </div>
+            <div className="ml-auto hidden items-center gap-2 lg:flex">
+              {user ? (
+                <>
+                  <UserAvatarDropdown user={user} />
+                </>
+              ) : (
+                <>
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link href="/login">Sign In</Link>
+                  </Button>
+                  <Button size="sm" asChild>
+                    <Link href="/signup">Get Started</Link>
+                  </Button>
+                </>
+              )}
+            </div>
+            <Button variant="ghost" size="sm" className="ml-auto grid lg:hidden">
+              <Menu className="h-5 w-5" />
+            </Button>
+          </div>
+        </nav>
+      </header>
+      <div className="pt-24">
         <div className="container mx-auto px-4 py-12 md:py-20 lg:py-28">
           <div className="mb-16 text-center">
             <Badge variant="secondary" className="mb-6 gap-1.5">
@@ -104,7 +101,7 @@ export default async function Home() {
             />
           </div>
         </div>
-      </header>
+      </div>
     </main>
   );
 }

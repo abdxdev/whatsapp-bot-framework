@@ -7,18 +7,17 @@ import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export function LoginForm({ className, ...props }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
     const { error } = await supabase.auth.signInWithPassword({
@@ -27,7 +26,7 @@ export function LoginForm({ className, ...props }) {
     });
 
     if (error) {
-      setError(error.message);
+      toast.error(error.message);
       setLoading(false);
     } else {
       router.push("/dashboard");
@@ -44,7 +43,7 @@ export function LoginForm({ className, ...props }) {
     });
 
     if (error) {
-      setError(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -68,7 +67,6 @@ export function LoginForm({ className, ...props }) {
           </div>
           <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
         </Field>
-        {error && <div className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 p-3 rounded-md">{error}</div>}
         <Field>
           <Button type="submit" disabled={loading}>
             {loading ? "Logging in..." : "Login"}

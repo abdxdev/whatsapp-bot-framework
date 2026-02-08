@@ -7,13 +7,13 @@ import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 export function ResetPasswordForm({ className, ...props }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isValidToken, setIsValidToken] = useState(false);
+  const [isValidToken, setIsValidToken] = useState(null);
   const router = useRouter();
   const supabase = createClient();
 
@@ -23,22 +23,22 @@ export function ResetPasswordForm({ className, ...props }) {
       if (session) {
         setIsValidToken(true);
       } else {
-        setError("Invalid or expired reset link");
+        setIsValidToken(false);
+        toast.error("Invalid or expired reset link");
       }
     });
   }, [supabase.auth]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+      toast.error("Password must be at least 6 characters");
       return;
     }
 
@@ -49,16 +49,16 @@ export function ResetPasswordForm({ className, ...props }) {
     });
 
     if (error) {
-      setError(error.message);
+      toast.error(error.message);
       setLoading(false);
     } else {
-      // Password updated successfully
+      toast.success("Password updated successfully!");
       router.push("/dashboard");
       router.refresh();
     }
   };
 
-  if (!isValidToken && !error) {
+  if (isValidToken === null) {
     return (
       <div className="flex flex-col gap-6 text-center">
         <h1 className="text-2xl font-bold">Loading...</h1>
@@ -67,11 +67,11 @@ export function ResetPasswordForm({ className, ...props }) {
     );
   }
 
-  if (error && !isValidToken) {
+  if (isValidToken === false) {
     return (
       <div className="flex flex-col gap-6 text-center">
         <h1 className="text-2xl font-bold">Invalid Link</h1>
-        <p className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 p-3 rounded-md">{error}</p>
+        <p className="text-muted-foreground text-sm">This reset link is invalid or has expired.</p>
         <Button onClick={() => router.push("/login")}>Back to Login</Button>
       </div>
     );
@@ -94,7 +94,6 @@ export function ResetPasswordForm({ className, ...props }) {
           <Input id="confirm-password" type="password" required minLength={6} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Confirm new password" />
           <FieldDescription>Please re-enter your password.</FieldDescription>
         </Field>
-        {error && isValidToken && <div className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 p-3 rounded-md">{error}</div>}
         <Field>
           <Button type="submit" disabled={loading}>
             {loading ? "Updating Password..." : "Update Password"}

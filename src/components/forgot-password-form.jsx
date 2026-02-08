@@ -6,18 +6,15 @@ import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui
 import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/client";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export function ForgotPasswordForm({ className, ...props }) {
   const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess(false);
     setLoading(true);
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -25,10 +22,10 @@ export function ForgotPasswordForm({ className, ...props }) {
     });
 
     if (error) {
-      setError(error.message);
+      toast.error(error.message);
       setLoading(false);
     } else {
-      setSuccess(true);
+      toast.success("Check your email for a password reset link!");
       setLoading(false);
       setEmail("");
     }
@@ -45,8 +42,6 @@ export function ForgotPasswordForm({ className, ...props }) {
           <FieldLabel htmlFor="email">Email</FieldLabel>
           <Input id="email" type="email" placeholder="m@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
         </Field>
-        {error && <div className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 p-3 rounded-md">{error}</div>}
-        {success && <div className="text-green-600 text-sm bg-green-50 dark:bg-green-900/20 p-3 rounded-md">Check your email for a password reset link!</div>}
         <Field>
           <Button type="submit" disabled={loading}>
             {loading ? "Sending..." : "Send Reset Link"}
