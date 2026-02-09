@@ -38,7 +38,7 @@ export async function updateSession(request) {
   const user = data?.claims
 
   // Allow access to public routes without authentication
-  const publicRoutes = ['/', '/login', '/signup', '/auth', '/reset-password', '/forgot-password']
+  const publicRoutes = ['/', '/auth/login', '/auth/signup', '/auth/forgot-password', '/auth/reset-password']
   const isPublicRoute = publicRoutes.some(route =>
     request.nextUrl.pathname === route ||
     request.nextUrl.pathname.startsWith(route + '/')
@@ -47,7 +47,7 @@ export async function updateSession(request) {
   // Redirect unauthenticated users from protected routes
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone()
-    url.pathname = '/login'
+    url.pathname = '/auth/login'
     return NextResponse.redirect(url)
   }
 

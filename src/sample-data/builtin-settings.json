@@ -1,0 +1,42 @@
+{
+  "name": "builtin",
+  "description": "Built-in commands available to all users",
+  "commands": {
+    "ping": {
+      "description": "Check if the bot is alive and responsive",
+      "syntax": {
+        "parameters": {}
+      }
+    },
+    "id": {
+      "description": "Get your user ID, chat ID, and current role",
+      "syntax": {
+        "parameters": {}
+      }
+    },
+    "help": {
+      "description": "Show available commands and usage information",
+      "syntax": {
+        "parameters": {
+          "arg": {
+            "type": "string",
+            "description": "Command or service to get help for",
+            "optional": true
+          }
+        }
+      }
+    },
+    "status": {
+      "description": "Show bot status and system information",
+      "syntax": {
+        "parameters": {}
+      }
+    },
+    "services": {
+      "description": "List all available services",
+      "syntax": {
+        "parameters": {}
+      }
+    }
+  }
+}

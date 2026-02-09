@@ -1,0 +1,183 @@
+{
+    "name": "exp",
+    "description": "Track and manage expenses for family members",
+    "roles": [
+        "parent",
+        "child"
+    ],
+    "storage": {
+        "expenseEntry": {
+            "type": "object",
+            "isList": true,
+            "description": "Expense entry",
+            "properties": {
+                "amount": {
+                    "type": "int",
+                    "description": "Expense amount"
+                },
+                "item": {
+                    "type": "string",
+                    "description": "Item description"
+                },
+                "addedBy": {
+                    "type": "UserId",
+                    "description": "User who added the expense"
+                }
+            }
+        }
+    },
+    "commands": {
+        "add": {
+            "description": "Add an expense",
+            "interactive": false,
+            "syntaxes": [
+                {
+                    "allowedRoles": [
+                        "child"
+                    ],
+                    "parameters": {
+                        "amount": {
+                            "type": "int",
+                            "description": "Expense amount"
+                        },
+                        "item": {
+                            "type": "string",
+                            "description": "Item description"
+                        }
+                    }
+                },
+                {
+                    "allowedRoles": [
+                        "parent"
+                    ],
+                    "parameters": {
+                        "childNo": {
+                            "type": "int",
+                            "description": "Child number"
+                        },
+                        "amount": {
+                            "type": "int",
+                            "description": "Expense amount"
+                        },
+                        "item": {
+                            "type": "string",
+                            "description": "Item description"
+                        }
+                    }
+                }
+            ]
+        },
+        "edit": {
+            "description": "Edit an expense",
+            "syntaxes": [
+                {
+                    "allowedRoles": [
+                        "child"
+                    ],
+                    "parameters": {
+                        "itemNo": {
+                            "type": "int",
+                            "description": "Item number"
+                        },
+                        "price": {
+                            "type": "int",
+                            "description": "Updated price"
+                        },
+                        "item": {
+                            "type": "string",
+                            "description": "Updated item name"
+                        }
+                    }
+                },
+                {
+                    "allowedRoles": [
+                        "parent"
+                    ],
+                    "parameters": {
+                        "childNo": {
+                            "type": "int",
+                            "description": "Child number"
+                        },
+                        "itemNo": {
+                            "type": "int",
+                            "description": "Item number of child"
+                        },
+                        "price": {
+                            "type": "int",
+                            "description": "Updated price"
+                        },
+                        "item": {
+                            "type": "string",
+                            "description": "Updated item name"
+                        }
+                    }
+                }
+            ]
+        },
+        "list": {
+            "description": "List all expenses",
+            "syntaxes": [
+                {
+                    "allowedRoles": [
+                        "child",
+                        "parent"
+                    ],
+                    "parameters": {}
+                }
+            ]
+        },
+        "clear": {
+            "description": "Clear all expenses",
+            "syntaxes": [
+                {
+                    "allowedRoles": [
+                        "child"
+                    ],
+                    "parameters": {}
+                },
+                {
+                    "allowedRoles": [
+                        "parent"
+                    ],
+                    "parameters": {
+                        "childNo": {
+                            "type": "int",
+                            "description": "Child number"
+                        }
+                    }
+                }
+            ]
+        },
+        "remove": {
+            "description": "Remove an expense",
+            "syntaxes": [
+                {
+                    "allowedRoles": [
+                        "child"
+                    ],
+                    "parameters": {
+                        "itemNo": {
+                            "type": "int",
+                            "description": "Item number"
+                        }
+                    }
+                },
+                {
+                    "allowedRoles": [
+                        "parent"
+                    ],
+                    "parameters": {
+                        "childNo": {
+                            "type": "int",
+                            "description": "Child number"
+                        },
+                        "itemNo": {
+                            "type": "int",
+                            "description": "Item number"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

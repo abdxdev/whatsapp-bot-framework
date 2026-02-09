@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Files, User, Box, FileText, Info, Menu, LogOut } from "lucide-react";
+import { FileText, Info, Menu, CreditCard, Code2, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { UserAvatarDropdown } from "@/components/user-avatar-dropdown";
 export default async function Home() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+
   return (
     <main className="min-h-screen">
       <header className="fixed top-0 inset-x-0 z-50 p-4">
@@ -22,27 +23,27 @@ export default async function Home() {
             <div className="absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 lg:block">
               <ul className="mt-4 flex flex-col gap-1 lg:mt-0 lg:flex-row lg:items-center lg:gap-1">
                 <li>
-                  <Link href="#" className="text-muted-foreground hover:text-foreground hover:bg-secondary flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors">
-                    <Files className="h-4 w-4" />
-                    Pages
+                  <Link href="/marketplace" className="text-muted-foreground hover:text-foreground hover:bg-secondary flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors">
+                    <Store className="h-4 w-4" />
+                    Marketplace
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="text-muted-foreground hover:text-foreground hover:bg-secondary flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors">
-                    <User className="h-4 w-4" />
-                    Account
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-muted-foreground hover:text-foreground hover:bg-secondary flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors">
-                    <Box className="h-4 w-4" />
-                    Blocks
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-muted-foreground hover:text-foreground hover:bg-secondary flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors">
+                  <Link href="/docs" className="text-muted-foreground hover:text-foreground hover:bg-secondary flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors">
                     <FileText className="h-4 w-4" />
                     Docs
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/developers" className="text-muted-foreground hover:text-foreground hover:bg-secondary flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors">
+                    <Code2 className="h-4 w-4" />
+                    Developers
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/pricing" className="text-muted-foreground hover:text-foreground hover:bg-secondary flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors">
+                    <CreditCard className="h-4 w-4" />
+                    Pricing
                   </Link>
                 </li>
               </ul>
@@ -55,10 +56,10 @@ export default async function Home() {
               ) : (
                 <>
                   <Button variant="ghost" size="sm" asChild>
-                    <Link href="/login">Sign In</Link>
+                    <Link href="/auth/login">Sign In</Link>
                   </Button>
                   <Button size="sm" asChild>
-                    <Link href="/signup">Get Started</Link>
+                    <Link href="/auth/signup">Get Started</Link>
                   </Button>
                 </>
               )}

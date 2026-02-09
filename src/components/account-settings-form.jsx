@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Field, FieldGroup, FieldLabel, FieldDescription } from "@/components/ui/field";
+import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -32,7 +33,6 @@ export function AccountSettingsForm({ user }) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type and size
     const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
     if (!allowedTypes.includes(file.type)) {
       toast.error("Please upload a JPEG, PNG, WebP, or GIF image.");
@@ -44,21 +44,13 @@ export function AccountSettingsForm({ user }) {
     }
 
     setUploading(true);
-
     try {
       const fileExt = file.name.split(".").pop();
       const filePath = `${user.id}/avatar.${fileExt}`;
-
-      // Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, file, { upsert: true });
-
       if (uploadError) throw uploadError;
-
-      // Get public URL
       const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
-      // Append cache-buster so the browser picks up the new image
-      const newUrl = `${data.publicUrl}?t=${Date.now()}`;
-      setAvatarUrl(newUrl);
+      setAvatarUrl(`${data.publicUrl}?t=${Date.now()}`);
     } catch (err) {
       toast.error(err.message || "Failed to upload avatar.");
     } finally {
@@ -69,14 +61,9 @@ export function AccountSettingsForm({ user }) {
   const handleSave = async (e) => {
     e.preventDefault();
     setSaving(true);
-
     const { error } = await supabase.auth.updateUser({
-      data: {
-        full_name: fullName,
-        avatar_url: avatarUrl,
-      },
+      data: { full_name: fullName, avatar_url: avatarUrl },
     });
-
     if (error) {
       toast.error(error.message);
     } else {
@@ -87,43 +74,55 @@ export function AccountSettingsForm({ user }) {
   };
 
   return (
-    <form onSubmit={handleSave} className="flex flex-col gap-8">
-      {/* Avatar Section */}
-      <div className="flex items-center gap-6">
-        <div className="relative group">
-          <Avatar className="h-20 w-20 text-lg">
-            <AvatarImage src={avatarUrl} alt={fullName || "Avatar"} />
-            <AvatarFallback>{initials}</AvatarFallback>
-          </Avatar>
-          <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-            {uploading ? <Loader2 className="h-5 w-5 text-white animate-spin" /> : <Camera className="h-5 w-5 text-white" />}
-          </button>
-          <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleAvatarUpload} />
-        </div>
-        <div>
-          <p className="font-medium">{fullName || "Your Name"}</p>
-          <p className="text-sm text-muted-foreground">{user.email}</p>
-          <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="text-sm text-primary hover:underline mt-1 cursor-pointer">
-            {uploading ? "Uploading…" : "Change avatar"}
-          </button>
-        </div>
-      </div>
+    <form onSubmit={handleSave} className="space-y-6">
+      {/* Avatar Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Profile Picture</CardTitle>
+          <CardDescription>Click on the avatar to upload a new photo.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-5">
+            <div className="relative group">
+              <Avatar className="h-20 w-20 text-lg">
+                <AvatarImage src={avatarUrl} alt={fullName || "Avatar"} />
+                <AvatarFallback>{initials}</AvatarFallback>
+              </Avatar>
+              <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                {uploading ? <Loader2 className="h-5 w-5 text-white animate-spin" /> : <Camera className="h-5 w-5 text-white" />}
+              </button>
+              <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleAvatarUpload} />
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <p className="font-medium">{fullName || "Your Name"}</p>
+              <p className="text-sm text-muted-foreground">{user.email}</p>
+              <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="text-sm text-primary hover:underline mt-1 cursor-pointer self-start">
+                {uploading ? "Uploading…" : "Change avatar"}
+              </button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Form Fields */}
-      <FieldGroup>
-        <Field>
-          <FieldLabel htmlFor="fullName">Display Name</FieldLabel>
-          <Input id="fullName" type="text" placeholder="Your name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-          <FieldDescription>This is the name shown across the app.</FieldDescription>
-        </Field>
-
-        <Field>
-          <FieldLabel htmlFor="email">Email</FieldLabel>
-          <Input id="email" type="email" value={user.email} disabled className="opacity-60" />
-          <FieldDescription>Your email cannot be changed here.</FieldDescription>
-        </Field>
-
-        <div>
+      {/* Profile Info Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Profile Information</CardTitle>
+          <CardDescription>Update your display name and view your email address.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Field>
+            <FieldLabel htmlFor="fullName">Display Name</FieldLabel>
+            <Input id="fullName" type="text" placeholder="Your name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+            <FieldDescription>This is the name shown across the app.</FieldDescription>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="email">Email</FieldLabel>
+            <Input id="email" type="email" value={user.email} disabled className="opacity-60" />
+            <FieldDescription>Your email cannot be changed here.</FieldDescription>
+          </Field>
+        </CardContent>
+        <CardFooter className="border-t">
           <Button type="submit" disabled={saving}>
             {saving ? (
               <>
@@ -134,8 +133,8 @@ export function AccountSettingsForm({ user }) {
               "Save Changes"
             )}
           </Button>
-        </div>
-      </FieldGroup>
+        </CardFooter>
+      </Card>
     </form>
   );
 }

@@ -1,0 +1,316 @@
+{
+  "name": "group",
+  "description": "Group-level commands available to group admins",
+  "settings": {
+    "disableServicePrefix": {
+      "type": "Service",
+      "description": "Disable service prefix routing (command-only mode)",
+      "default": null
+    },
+    "status": {
+      "type": "string",
+      "description": "active or paused status of the group. When paused, bot ignores all messages from the group",
+      "default": "active"
+    },
+    "argsOnlyCmdSettings": {
+      "type": "object",
+      "properties": {
+        "service": {
+          "type": "Service",
+          "description": "Service key to which the command belongs",
+          "default": null
+        },
+        "command": {
+          "type": "Command",
+          "description": "Command name to be made args-only",
+          "default": null
+        }
+      },
+      "description": "Make a command args-only (no prefix needed)"
+    },
+    "replyOnParsingError": {
+      "type": "bool",
+      "description": "Control error replies for args-only commands. When false (default), silently ignores malformed messages. When true, bot sends error message for every parsing failure.",
+      "default": false
+    },
+    "blackList": {
+      "type": "object",
+      "isList": true,
+      "properties": {
+        "userId": {
+          "type": "UserId",
+          "description": "User to blacklist"
+        },
+        "services": {
+          "type": "Service|*",
+          "isList": true,
+          "description": "Services to ban from. Use * for all services in this group"
+        },
+        "commands": {
+          "type": "Command|*",
+          "isList": true,
+          "description": "Commands to ban from. Use * for all commands"
+        }
+      },
+      "description": "Group-level blacklist. Admins can only ban users from THIS group",
+      "default": []
+    }
+  },
+  "commands": {
+    "installService": {
+      "description": "Install a service into the group",
+      "syntax": {
+        "parameters": {
+          "chatId": {
+            "type": "GroupId|UserId",
+            "description": "Group or User identifier"
+          },
+          "service": {
+            "type": "Service",
+            "description": "Service identifier"
+          }
+        }
+      }
+    },
+    "removeService": {
+      "description": "Remove a service from the group",
+      "syntax": {
+        "parameters": {
+          "chatId": {
+            "type": "GroupId|UserId",
+            "description": "Group or User identifier"
+          },
+          "service": {
+            "type": "Service",
+            "description": "Service identifier"
+          }
+        }
+      }
+    },
+    "listServices": {
+      "description": "List services installed in the group",
+      "syntax": {
+        "parameters": {
+          "chatId": {
+            "type": "GroupId|UserId",
+            "description": "Group or User identifier"
+          }
+        }
+      }
+    },
+    "addRoles": {
+      "description": "Add roles to users in the group for a service",
+      "syntax": {
+        "parameters": {
+          "service": {
+            "type": "Service",
+            "description": "Service identifier"
+          },
+          "userIds": {
+            "type": "UserId|*",
+            "isList": true,
+            "description": "User identifier(s)"
+          },
+          "roles": {
+            "type": "Role|*",
+            "isList": true,
+            "description": "Role names"
+          }
+        }
+      }
+    },
+    "removeRoles": {
+      "description": "Remove roles from users in the group for a service",
+      "syntax": {
+        "parameters": {
+          "service": {
+            "type": "Service",
+            "description": "Service identifier"
+          },
+          "userIds": {
+            "type": "UserId|*",
+            "isList": true,
+            "description": "User identifier(s)"
+          },
+          "roles": {
+            "type": "Role|*",
+            "isList": true,
+            "description": "Role names"
+          }
+        }
+      }
+    },
+    "listRoles": {
+      "description": "List roles of users in the group for a service",
+      "syntax": {
+        "parameters": {
+          "service": {
+            "type": "Service",
+            "description": "Service identifier"
+          },
+          "userIds": {
+            "type": "UserId|*",
+            "isList": true,
+            "description": "User identifier(s)"
+          }
+        }
+      }
+    },
+    "addBlacklist": {
+      "description": "Add a user to the group blacklist (group admin only)",
+      "syntax": {
+        "parameters": {
+          "userId": {
+            "type": "UserId",
+            "description": "User to blacklist in this group"
+          },
+          "services": {
+            "type": "Service|*",
+            "isList": true,
+            "description": "Services to ban from. Use * for all services"
+          },
+          "commands": {
+            "type": "Command|*",
+            "isList": true,
+            "description": "Commands to ban from. Use * for all commands"
+          }
+        }
+      }
+    },
+    "removeBlacklist": {
+      "description": "Remove a user from the group blacklist (group admin only)",
+      "syntax": {
+        "parameters": {
+          "userId": {
+            "type": "UserId",
+            "description": "User to unblacklist in this group"
+          },
+          "services": {
+            "type": "Service|*",
+            "isList": true,
+            "description": "Services to unban from. Use * for all"
+          },
+          "commands": {
+            "type": "Command|*",
+            "isList": true,
+            "description": "Commands to unban from. Use * for all"
+          }
+        }
+      }
+    },
+    "listBlacklist": {
+      "description": "List all blacklisted users in this group",
+      "syntax": {
+        "parameters": {}
+      }
+    },
+    "setServiceSetting": {
+      "description": "Set a setting for the service in the group",
+      "syntax": {
+        "parameters": {
+          "service": {
+            "type": "Service",
+            "description": "Service identifier"
+          },
+          "setting": {
+            "type": "Setting",
+            "description": "Setting key"
+          },
+          "value": {
+            "type": "any",
+            "description": "Setting value"
+          }
+        }
+      }
+    },
+    "unsetServiceSetting": {
+      "description": "Unset a setting for the service in the group",
+      "syntax": {
+        "parameters": {
+          "service": {
+            "type": "Service",
+            "description": "Service identifier"
+          },
+          "setting": {
+            "type": "Setting",
+            "description": "Setting key"
+          }
+        }
+      }
+    },
+    "listServiceSettings": {
+      "description": "List all settings for the service in the group",
+      "syntax": {
+        "parameters": {
+          "service": {
+            "type": "Service",
+            "description": "Service identifier"
+          },
+          "withValues": {
+            "type": "bool",
+            "description": "Whether to include setting values in the listing",
+            "default": false
+          }
+        }
+      }
+    },
+    "setSetting": {
+      "description": "Set a group-level setting for a service",
+      "syntax": {
+        "parameters": {
+          "setting": {
+            "type": "Setting",
+            "description": "Setting name"
+          },
+          "value": {
+            "type": "any",
+            "description": "Setting value"
+          }
+        }
+      }
+    },
+    "unsetSetting": {
+      "description": "Unset a group-level setting for a service",
+      "syntax": {
+        "parameters": {
+          "setting": {
+            "type": "Setting",
+            "description": "Setting name"
+          }
+        }
+      }
+    },
+    "setName": {
+      "description": "Set a display name for a user in this group",
+      "syntax": {
+        "parameters": {
+          "userId": {
+            "type": "UserId",
+            "description": "User to set name for"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name"
+          }
+        }
+      }
+    },
+    "unsetName": {
+      "description": "Remove a display name for a user in this group",
+      "syntax": {
+        "parameters": {
+          "userId": {
+            "type": "UserId",
+            "description": "User to remove name for"
+          }
+        }
+      }
+    },
+    "listNames": {
+      "description": "List all saved display names in this group",
+      "syntax": {
+        "parameters": {}
+      }
+    }
+  }
+}

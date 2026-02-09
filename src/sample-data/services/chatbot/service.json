@@ -1,0 +1,84 @@
+{
+    "name": "chatbot",
+    "description": "AI-powered chat bot for conversations",
+    "oneCmdPerMsg": true,
+    "allowInPrivateChat": true,
+    "roles": [
+        "member"
+    ],
+    "serviceSettings": {
+        "apiKey": {
+            "type": "string",
+            "description": "API key for the chat bot service",
+            "default": ""
+        },
+        "botName": {
+            "type": "string",
+            "description": "Name of the chat bot",
+            "default": "ChatBot"
+        },
+        "systemMessage": {
+            "type": "string",
+            "description": "System message to set the behavior of the bot",
+            "default": "You are a helpful assistant."
+        },
+        "responseTemperature": {
+            "type": "float",
+            "description": "Temperature setting for response generation",
+            "default": 0.7
+        },
+        "maxResponseTokens": {
+            "type": "int",
+            "description": "Maximum tokens in the bot's response",
+            "default": 150
+        },
+        "contextMessageLimit": {
+            "type": "int",
+            "description": "Number of previous messages to consider for context",
+            "default": 5
+        }
+    },
+    "storage": {
+        "history": {
+            "type": "object",
+            "isList": true,
+            "description": "Chat history messages",
+            "properties": {
+                "role": {
+                    "type": "string",
+                    "description": "Role of the message sender (user or bot)"
+                },
+                "content": {
+                    "type": "string",
+                    "description": "Content of the message"
+                },
+                "timestamp": {
+                    "type": "date",
+                    "description": "Timestamp of the message"
+                },
+                "userId": {
+                    "type": "UserId",
+                    "description": "Identifier of the user who sent the message"
+                }
+            }
+        }
+    },
+    "commands": {
+        "sendMessage": {
+            "description": "Invoke the chat bot without a command prefix",
+            "syntaxes": [
+                {
+                    "allowedRoles": [
+                        "*"
+                    ],
+                    "parameters": {
+                        "message": {
+                            "type": "string",
+                            "description": "Message to send to the chat bot"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

@@ -1,0 +1,112 @@
+[
+	{
+		"id": "120363304791283382@g.us",
+		"name": "Kharchey test",
+		"description": "",
+		"addedAt": "2024-06-06T18:35:51Z",
+		"Participants": [
+			{
+				"id": "156199521677504@lid",
+				"PhoneNumber": "923201002771@s.whatsapp.net",
+				"IsAdmin": false,
+				"name": ""
+			},
+			{
+				"id": "193411034423413@lid",
+				"PhoneNumber": "923124996133@s.whatsapp.net",
+				"IsAdmin": true,
+				"name": ""
+			}
+		]
+	},
+	{
+		"id": "120363419267797719@g.us",
+		"name": "Playground",
+		"description": "Hi everyone! This community is for members to chat in topic-based groups and get important announcements.",
+		"addedAt": "2025-05-01T12:37:46Z",
+		"Participants": [
+			{
+				"id": "193411034423413@lid",
+				"PhoneNumber": "923124996133@s.whatsapp.net",
+				"IsAdmin": true,
+				"name": ""
+			},
+			{
+				"id": "156199521677504@lid",
+				"PhoneNumber": "",
+				"IsAdmin": false,
+				"name": "+92∙∙∙∙∙∙∙∙71"
+			}
+		]
+	},
+	{
+		"id": "120363402966561829@g.us",
+		"name": "Event management test",
+		"description": "",
+		"addedAt": "2026-01-28T10:02:51Z",
+		"Participants": [
+			{
+				"id": "156199521677504@lid",
+				"PhoneNumber": "923201002771@s.whatsapp.net",
+				"IsAdmin": false,
+				"name": ""
+			},
+			{
+				"id": "193411034423413@lid",
+				"PhoneNumber": "923124996133@s.whatsapp.net",
+				"IsAdmin": true,
+				"name": ""
+			},
+			{
+				"id": "228689828651179@lid",
+				"PhoneNumber": "923004182299@s.whatsapp.net",
+				"IsAdmin": false,
+				"name": ""
+			}
+		]
+	},
+	{
+		"id": "120363039423997688@g.us",
+		"name": "ٹو نمبر Kharchey",
+		"description": "",
+		"addedAt": "2022-02-28T08:37:50Z",
+		"Participants": [
+			{
+				"id": "64682593398986@lid",
+				"PhoneNumber": "923280175001@s.whatsapp.net",
+				"IsAdmin": false,
+				"name": ""
+			},
+			{
+				"id": "263247152336913@lid",
+				"PhoneNumber": "923254894119@s.whatsapp.net",
+				"IsAdmin": false,
+				"name": ""
+			},
+			{
+				"id": "156199521677504@lid",
+				"PhoneNumber": "923201002771@s.whatsapp.net",
+				"IsAdmin": false,
+				"name": ""
+			},
+			{
+				"id": "193411034423413@lid",
+				"PhoneNumber": "923124996133@s.whatsapp.net",
+				"IsAdmin": true,
+				"name": ""
+			},
+			{
+				"id": "177025734189094@lid",
+				"PhoneNumber": "923004292116@s.whatsapp.net",
+				"IsAdmin": false,
+				"name": ""
+			},
+			{
+				"id": "209865020575812@lid",
+				"PhoneNumber": "923000437299@s.whatsapp.net",
+				"IsAdmin": false,
+				"name": ""
+			}
+		]
+	}
+]

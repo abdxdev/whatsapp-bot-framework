@@ -1,0 +1,222 @@
+{
+  "CommonSettings": {
+    "status": "active",
+    "AIConfig": {
+      "apiKey": "",
+      "model": "gemini-1.5-pro",
+      "systemPrompt": "You are a helpful assistant."
+    },
+    "blackList": []
+  },
+  "chats": {
+    "120363304791283382@g.us": {
+      "groupSettings": {
+        "argsOnlyCmdSettings": {
+          "command": "add",
+          "service": "exp"
+        },
+        "disableServicePrefix": "exp",
+        "status": "active",
+        "replyOnParsingError": false,
+        "blackList": []
+      },
+      "chatType": "group",
+      "services": {
+        "exp": {
+          "roles": {
+            "admin": [
+              "923124996133@s.whatsapp.net"
+            ],
+            "member": [
+              "923201002771@s.whatsapp.net"
+            ],
+            "parent": [],
+            "child": []
+          },
+          "serviceSettings": {
+            "status": "active"
+          },
+          "storage": {}
+        }
+      }
+    },
+    "120363402966561829@g.us": {
+      "groupSettings": {
+        "argsOnlyCmdSettings": null,
+        "disableServicePrefix": null,
+        "status": "active",
+        "replyOnParsingError": false,
+        "blackList": []
+      },
+      "chatType": "group",
+      "services": {
+        "adorners": {
+          "roles": {
+            "admin": [
+              "923124996133@s.whatsapp.net"
+            ],
+            "member": [
+              "923201002771@s.whatsapp.net",
+              "923004182299@s.whatsapp.net"
+            ],
+            "manager": []
+          },
+          "serviceSettings": {
+            "status": "active",
+            "apiKey": "AIzaSyCmv-punqhf4cvJk0hnvAggcQXQ0P5s2IU"
+          },
+          "storage": {}
+        }
+      }
+    },
+    "120363039423997688@g.us": {
+      "groupSettings": {
+        "argsOnlyCmdSettings": {
+          "command": "add",
+          "service": "exp"
+        },
+        "disableServicePrefix": "exp",
+        "status": "active",
+        "replyOnParsingError": false,
+        "blackList": []
+      },
+      "chatType": "group",
+      "services": {
+        "exp": {
+          "roles": {
+            "admin": [
+              "923124996133@s.whatsapp.net"
+            ],
+            "member": [
+              "923280175001@s.whatsapp.net",
+              "923254894119@s.whatsapp.net",
+              "923201002771@s.whatsapp.net",
+              "923004292116@s.whatsapp.net",
+              "923000437299@s.whatsapp.net"
+            ],
+            "parent": [
+              "923000437299@s.whatsapp.net",
+              "923004292116@s.whatsapp.net"
+            ],
+            "child": [
+              "923124996133@s.whatsapp.net",
+              "923254894119@s.whatsapp.net",
+              "923280175001@s.whatsapp.net"
+            ]
+          },
+          "serviceSettings": {
+            "status": "active"
+          },
+          "storage": {
+            "expenses": [
+              {
+                "_id": "177020366197666658179",
+                "item": "old",
+                "amount": 120,
+                "addedBy": "923280175001@s.whatsapp.net",
+                "createdAt": "2026-02-04T11:14:21.976Z"
+              },
+              {
+                "_id": "17702036622017c3a0211",
+                "item": "notes",
+                "amount": 100,
+                "addedBy": "923280175001@s.whatsapp.net",
+                "createdAt": "2026-02-04T11:14:22.201Z"
+              },
+              {
+                "_id": "17702143573790d60b6d0",
+                "item": "yogurt",
+                "amount": 110,
+                "addedBy": "923124996133@s.whatsapp.net",
+                "createdAt": "2026-02-04T14:12:37.379Z"
+              },
+              {
+                "_id": "17702148558996eac605f",
+                "item": "rs to salahuddin station",
+                "amount": 30,
+                "addedBy": "923254894119@s.whatsapp.net",
+                "createdAt": "2026-02-04T14:20:55.899Z"
+              },
+              {
+                "_id": "1770214856122541b132a",
+                "item": "rs to PU new campus",
+                "amount": 50,
+                "addedBy": "923254894119@s.whatsapp.net",
+                "createdAt": "2026-02-04T14:20:56.122Z"
+              },
+              {
+                "_id": "1770214856339ffc67f40",
+                "item": "rs to westbridge school",
+                "amount": 150,
+                "addedBy": "923254894119@s.whatsapp.net",
+                "createdAt": "2026-02-04T14:20:56.339Z"
+              },
+              {
+                "_id": "17702148565586b83352e",
+                "item": "rs to salahuddin station",
+                "amount": 180,
+                "addedBy": "923254894119@s.whatsapp.net",
+                "createdAt": "2026-02-04T14:20:56.558Z"
+              },
+              {
+                "_id": "1770214856775d568ef4c",
+                "item": "rs to anarkali",
+                "amount": 30,
+                "addedBy": "923254894119@s.whatsapp.net",
+                "createdAt": "2026-02-04T14:20:56.775Z"
+              },
+              {
+                "_id": "1770214856994267793bc",
+                "item": "rs 3 pencil",
+                "amount": 60,
+                "addedBy": "923254894119@s.whatsapp.net",
+                "createdAt": "2026-02-04T14:20:56.994Z"
+              },
+              {
+                "_id": "1770360224692b53f35cd",
+                "item": "dahi bhaley",
+                "amount": 320,
+                "addedBy": "923124996133@s.whatsapp.net",
+                "createdAt": "2026-02-06T06:43:44.692Z"
+              },
+              {
+                "_id": "1770360224917e13b53eb",
+                "item": "biryani",
+                "amount": 300,
+                "addedBy": "923124996133@s.whatsapp.net",
+                "createdAt": "2026-02-06T06:43:44.917Z"
+              },
+              {
+                "_id": "1770532087550b64fb7a9",
+                "item": "naan",
+                "amount": 30,
+                "addedBy": "923124996133@s.whatsapp.net",
+                "createdAt": "2026-02-08T06:28:07.550Z"
+              },
+              {
+                "_id": "177053208778301a66d40",
+                "item": "seekh",
+                "amount": 170,
+                "addedBy": "923124996133@s.whatsapp.net",
+                "createdAt": "2026-02-08T06:28:07.782Z"
+              },
+              {
+                "_id": "1770532088010eb12c058",
+                "item": "tikka",
+                "amount": 140,
+                "addedBy": "923124996133@s.whatsapp.net",
+                "createdAt": "2026-02-08T06:28:08.010Z"
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "createdAt": {
+    "$date": "2026-02-04T07:45:31.154Z"
+  },
+  "updatedAt": {
+    "$date": "2026-02-08T06:28:08.013Z"
+  }
+}

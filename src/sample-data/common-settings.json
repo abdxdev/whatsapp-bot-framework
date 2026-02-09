@@ -1,0 +1,151 @@
+{
+  "name": "common",
+  "description": "Common settings and commands for the chat bot per user",
+  "settings": {
+    "status": {
+      "type": "string",
+      "description": "active or paused status of the user. When paused, bot ignores all messages from the user",
+      "default": "active"
+    },
+    "AIConfig": {
+      "type": "object",
+      "properties": {
+        "apiKey": {
+          "type": "string",
+          "description": "API key for the AI service",
+          "default": ""
+        },
+        "model": {
+          "type": "string",
+          "description": "Model to be used for AI interactions",
+          "default": "gemini-1.5-pro"
+        },
+        "systemPrompt": {
+          "type": "string",
+          "description": "System prompt to guide AI behavior",
+          "default": "You are a helpful assistant."
+        }
+      },
+      "description": "Configuration for AI service"
+    },
+    "blackList": {
+      "type": "object",
+      "isList": true,
+      "properties": {
+        "userId": {
+          "type": "UserId",
+          "description": "User to blacklist"
+        },
+        "groups": {
+          "type": "GroupId|*",
+          "isList": true,
+          "description": "Groups to ban from. Use * for all groups"
+        },
+        "services": {
+          "type": "Service|*",
+          "isList": true,
+          "description": "Services to ban from. Use * for all services"
+        },
+        "commands": {
+          "type": "Command|*",
+          "isList": true,
+          "description": "Commands to ban from. Use * for all commands"
+        }
+      },
+      "description": "Root-level blacklist. Root users can use * to ban from all groups/services/commands",
+      "default": []
+    }
+  },
+  "commands": {
+    "addBlacklist": {
+      "description": "Add a user to the global blacklist (root only)",
+      "syntax": {
+        "parameters": {
+          "userId": {
+            "type": "UserId",
+            "description": "User to blacklist"
+          },
+          "groups": {
+            "type": "GroupId|*",
+            "isList": true,
+            "description": "Groups to ban from. Use * for all groups"
+          },
+          "services": {
+            "type": "Service|*",
+            "isList": true,
+            "description": "Services to ban from. Use * for all services"
+          },
+          "commands": {
+            "type": "Command|*",
+            "isList": true,
+            "description": "Commands to ban from. Use * for all commands"
+          }
+        }
+      }
+    },
+    "removeBlacklist": {
+      "description": "Remove a user from the global blacklist (root only)",
+      "syntax": {
+        "parameters": {
+          "userId": {
+            "type": "UserId",
+            "description": "User to unblacklist"
+          },
+          "groups": {
+            "type": "GroupId|*",
+            "isList": true,
+            "description": "Groups to unban from. Use * for all"
+          },
+          "services": {
+            "type": "Service|*",
+            "isList": true,
+            "description": "Services to unban from. Use * for all"
+          },
+          "commands": {
+            "type": "Command|*",
+            "isList": true,
+            "description": "Commands to unban from. Use * for all"
+          }
+        }
+      }
+    },
+    "listBlacklist": {
+      "description": "List global blacklist entries (root only)",
+      "syntax": {
+        "parameters": {
+          "userId": {
+            "type": "UserId",
+            "description": "User ID to check (use * for all)",
+            "default": "*"
+          }
+        }
+      }
+    },
+    "setSetting": {
+      "description": "Set a group-level setting for a service",
+      "syntax": {
+        "parameters": {
+          "setting": {
+            "type": "Setting",
+            "description": "Setting name"
+          },
+          "value": {
+            "type": "any",
+            "description": "Setting value"
+          }
+        }
+      }
+    },
+    "unsetSetting": {
+      "description": "Unset a group-level setting for a service",
+      "syntax": {
+        "parameters": {
+          "setting": {
+            "type": "Setting",
+            "description": "Setting name"
+          }
+        }
+      }
+    }
+  }
+}
