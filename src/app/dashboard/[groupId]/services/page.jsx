@@ -12,8 +12,7 @@ import { ArrowLeft } from "lucide-react";
 const columns = [
   { key: "name", header: "Service", type: "primary", description: "description" },
   { key: "status", header: "Status", type: "status" },
-  { key: "triggers", header: "Triggers", type: "number" },
-  { key: "addedAt", header: "Added", type: "date" },
+  { key: "memberCount", header: "Members", type: "number" },
 ];
 
 export default function ServicesPage() {
@@ -36,7 +35,6 @@ export default function ServicesPage() {
 
   const { services } = group;
   const activeServices = services.filter((s) => s.status === "active").length;
-  const totalTriggers = services.reduce((sum, s) => sum + s.triggers, 0);
 
   return (
     <>
@@ -53,8 +51,8 @@ export default function ServicesPage() {
               </Badge>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">Total triggers:</span>
-              <span className="font-semibold">{totalTriggers.toLocaleString()}</span>
+              <span className="text-muted-foreground">Participants:</span>
+              <span className="font-semibold">{group.participantCount}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-muted-foreground">Status:</span>
@@ -64,7 +62,7 @@ export default function ServicesPage() {
         }
       />
 
-      <DataTable data={services} columns={columns} getRowHref={(row) => `/dashboard/${groupId}/${row.id}`} searchPlaceholder="Search services..." addLabel="Add Service" />
+      <DataTable data={services} columns={columns} getRowHref={(row) => `/dashboard/${groupId}/${row.id}`} searchPlaceholder="Search services..." addLabel="Install Service" />
     </>
   );
 }

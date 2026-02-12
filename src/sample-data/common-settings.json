@@ -21,7 +21,7 @@
           "default": "gemini-1.5-pro"
         },
         "systemPrompt": {
-          "type": "string",
+          "type": "text",
           "description": "System prompt to guide AI behavior",
           "default": "You are a helpful assistant."
         }

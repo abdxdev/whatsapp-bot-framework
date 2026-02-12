@@ -1,11 +1,14 @@
 import Link from "next/link";
-import { FileText, Info, Menu, CreditCard, Code2, Store } from "lucide-react";
+import { FileText, Info, Menu, CreditCard, Code2, Store, ChevronsUpDown, Sparkles, Settings, Bell, Monitor, Moon, Sun, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Logo } from "@/components/logo";
+import { Footer } from "@/components/footer";
 import { createClient } from "@/lib/supabase/server";
 import { UserAvatarDropdown } from "@/components/user-avatar-dropdown";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { UserCollapsible } from "@/components/user-collapsible";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -14,10 +17,10 @@ export default async function Home() {
   return (
     <main className="min-h-screen">
       <header className="fixed top-0 inset-x-0 z-50 p-4">
-        <nav className="mx-auto max-w-5xl rounded-full border border-border/40 bg-background/60 backdrop-blur-xl px-4 py-2 shadow-lg">
+        <nav className="mx-auto max-w-7xl rounded-full border border-border/40 bg-background/60 backdrop-blur-xl p-2 pl-4 shadow-lg">
           <div className="relative flex items-center">
             <Link href="/" className="flex items-center gap-2 text-lg font-bold">
-              <Logo className="size-6 text-primary" />
+              <Logo variant="color" className="size-6 text-primary" />
               Whatsapp Bot Framework
             </Link>
             <div className="absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 lg:block">
@@ -50,23 +53,72 @@ export default async function Home() {
             </div>
             <div className="ml-auto hidden items-center gap-2 lg:flex">
               {user ? (
-                <>
-                  <UserAvatarDropdown user={user} />
-                </>
+                <UserAvatarDropdown user={user} />
               ) : (
                 <>
                   <Button variant="ghost" size="sm" asChild>
                     <Link href="/auth/login">Sign In</Link>
                   </Button>
-                  <Button size="sm" asChild>
+                  <Button size="sm" asChild className="rounded-full">
                     <Link href="/auth/signup">Get Started</Link>
                   </Button>
                 </>
               )}
             </div>
-            <Button variant="ghost" size="sm" className="ml-auto grid lg:hidden">
-              <Menu className="h-5 w-5" />
-            </Button>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="sm" className="ml-auto grid lg:hidden rounded-full">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="top">
+                <SheetHeader>
+                  <SheetTitle>Menu</SheetTitle>
+                </SheetHeader>
+                <div className="mb-6 items-center px-6">
+                  <div className="flex flex-col mb-4">
+                    {user ? (
+                      <UserCollapsible user={user} />
+                    ) : (
+                      <>
+                        <Button variant="ghost" size="sm" asChild className="rounded-full">
+                          <Link href="/auth/login">Sign In</Link>
+                        </Button>
+                        <Button size="sm" asChild className="rounded-full">
+                          <Link href="/auth/signup">Get Started</Link>
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                  <ul className="flex flex-col gap-2">
+                    <li>
+                      <Link href="/marketplace" className="items-center gap-3 flex text-muted-foreground hover:text-foreground text-lg font-semibold transition-colors">
+                        <Store className="h-5 w-5" />
+                        Marketplace
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/docs" className="items-center gap-3 flex text-muted-foreground hover:text-foreground text-lg font-semibold transition-colors">
+                        <FileText className="h-5 w-5" />
+                        Docs
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/developers" className="items-center gap-3 flex text-muted-foreground hover:text-foreground text-lg font-semibold transition-colors">
+                        <Code2 className="h-5 w-5" />
+                        Developers
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/pricing" className="items-center gap-3 flex text-muted-foreground hover:text-foreground text-lg font-semibold transition-colors">
+                        <CreditCard className="h-5 w-5" />
+                        Pricing
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </nav>
       </header>
@@ -103,6 +155,7 @@ export default async function Home() {
           </div>
         </div>
       </div>
+      <Footer />
     </main>
   );
 }

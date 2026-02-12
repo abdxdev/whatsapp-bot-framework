@@ -7,8 +7,7 @@ import { ChevronsUpDown, LayoutDashboard, Slash } from "lucide-react";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Logo } from "@/components/logo";
-import { groups, getGroup } from "@/lib/data";
-import { Button } from "./ui/button";
+import { groups, getGroup, getService } from "@/lib/data";
 
 /** Slug → human-readable label for all static / sub-page routes */
 const slugLabels = {
@@ -28,8 +27,10 @@ const slugLabels = {
   services: "Services",
   "group-settings": "Group Settings",
   participants: "Participants",
+  blacklist: "Blacklist",
   // Service sub-pages
   roles: "Roles",
+  commands: "Commands",
   "service-settings": "Service Settings",
 };
 
@@ -58,7 +59,7 @@ export function DashboardBreadcrumb({ className }) {
         </Link>
       </BreadcrumbItem>
       <BreadcrumbSeparator>
-        <Slash className="text-muted" />
+        <Slash className="text-border" />
       </BreadcrumbSeparator>
       <BreadcrumbItem>
         {isRoot ? (
@@ -93,7 +94,7 @@ export function DashboardBreadcrumb({ className }) {
         <BreadcrumbList>
           {prefix}
           <BreadcrumbSeparator>
-            <Slash className="text-muted" />
+            <Slash className="text-border" />
           </BreadcrumbSeparator>
           {crumbs.map((slug, i) => {
             const isLast = i === crumbs.length - 1;
@@ -110,7 +111,7 @@ export function DashboardBreadcrumb({ className }) {
                 </BreadcrumbItem>
                 {!isLast && (
                   <BreadcrumbSeparator>
-                    <Slash className="text-muted" />
+                    <Slash className="text-border" />
                   </BreadcrumbSeparator>
                 )}
               </React.Fragment>
@@ -128,7 +129,7 @@ export function DashboardBreadcrumb({ className }) {
 
   const restSegments = segments.slice(2); // everything after groupId
   const serviceId = restSegments[0];
-  const service = serviceId ? group.services?.find((s) => String(s.id) === String(serviceId)) : null;
+  const service = serviceId ? getService(groupId, serviceId) : null;
 
   // Determine if we're on a group sub-page (e.g. group-settings, participants)
   const isGroupSubPage = restSegments.length > 0 && !service;
@@ -144,7 +145,7 @@ export function DashboardBreadcrumb({ className }) {
       <BreadcrumbList className="gap-y-3">
         {prefix}
         <BreadcrumbSeparator>
-          <Slash className="text-muted" />
+          <Slash className="text-border" />
         </BreadcrumbSeparator>
         {/* Group: clickable name + select switcher */}
         <BreadcrumbItem className="flex items-center gap-1">
@@ -156,11 +157,11 @@ export function DashboardBreadcrumb({ className }) {
             <BreadcrumbPage>{group.name}</BreadcrumbPage>
           )}
           <Select value={String(groupId)} onValueChange={(id) => router.push(`/dashboard/${id}`)}>
-            <SelectTrigger className="[&>svg:last-child]:hidden">
-              <Button variant="ghost" size="icon" className="h-6 w-4 p-0 rounded-full">
+            <SelectTrigger variant="ghost" className="[&>svg:last-child]:hidden h-auto w-auto border-0 bg-transparent shadow-none p-0 focus:ring-0">
+              <span className="inline-flex items-center justify-center h-6 w-4 rounded-full hover:bg-accent hover:text-accent-foreground cursor-pointer">
                 <ChevronsUpDown className="h-3.5 w-3.5" />
                 <span className="sr-only">Switch group</span>
-              </Button>
+              </span>
             </SelectTrigger>
             <SelectContent position="popper" align="start">
               {groups.map((g) => (
@@ -176,7 +177,7 @@ export function DashboardBreadcrumb({ className }) {
         {isGroupSubPage && (
           <>
             <BreadcrumbSeparator>
-              <Slash className="text-muted" />
+              <Slash className="text-border" />
             </BreadcrumbSeparator>
             <BreadcrumbItem>
               <BreadcrumbPage>{formatSlug(restSegments[0])}</BreadcrumbPage>
@@ -188,7 +189,7 @@ export function DashboardBreadcrumb({ className }) {
         {service && (
           <>
             <BreadcrumbSeparator>
-              <Slash className="text-muted" />
+              <Slash className="text-border" />
             </BreadcrumbSeparator>
             <BreadcrumbItem className="flex items-center gap-1">
               {serviceIsLink ? (
@@ -199,11 +200,11 @@ export function DashboardBreadcrumb({ className }) {
                 <BreadcrumbPage>{service.name}</BreadcrumbPage>
               )}
               <Select value={String(serviceId)} onValueChange={(id) => router.push(`/dashboard/${groupId}/${id}`)}>
-                <SelectTrigger className="[&>svg:last-child]:hidden">
-                  <Button variant="ghost" size="icon" className="h-6 w-4 p-0 rounded-full">
+                <SelectTrigger variant="ghost" className="[&>svg:last-child]:hidden h-auto w-auto border-0 bg-transparent shadow-none p-0 focus:ring-0">
+                  <span className="inline-flex items-center justify-center h-6 w-4 rounded-full hover:bg-accent hover:text-accent-foreground cursor-pointer">
                     <ChevronsUpDown className="h-3.5 w-3.5" />
                     <span className="sr-only">Switch service</span>
-                  </Button>
+                  </span>
                 </SelectTrigger>
                 <SelectContent position="popper" align="start">
                   {group.services.map((s) => (
@@ -221,7 +222,7 @@ export function DashboardBreadcrumb({ className }) {
         {serviceSubPage && (
           <>
             <BreadcrumbSeparator>
-              <Slash className="text-muted" />
+              <Slash className="text-border" />
             </BreadcrumbSeparator>
             <BreadcrumbItem>
               <BreadcrumbPage>{formatSlug(serviceSubPage)}</BreadcrumbPage>

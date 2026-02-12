@@ -79,9 +79,13 @@ function StatusBadge({ status }) {
 function PrimaryCell({ row, href, descriptionKey }) {
   return (
     <div>
-      <Link href={href} className="font-medium leading-none hover:underline" onClick={(e) => e.stopPropagation()}>
-        {row.name}
-      </Link>
+      {href ? (
+        <Link href={href} className="font-medium leading-none hover:underline" onClick={(e) => e.stopPropagation()}>
+          {row.name}
+        </Link>
+      ) : (
+        <span className="font-medium leading-none">{row.name}</span>
+      )}
       {descriptionKey && row[descriptionKey] && <p className="text-xs text-muted-foreground mt-1">{row[descriptionKey]}</p>}
       <div className="mt-1">
         <CopyableId id={row.id} />
@@ -126,14 +130,18 @@ function RowCard({ row, columns, href, menuItems, router }) {
   const otherCols = columns.filter((c) => c.type !== "primary" && c.type !== "status");
 
   return (
-    <Card className="cursor-pointer transition-colors hover:bg-muted/40 py-4 gap-3" onClick={() => router.push(href)}>
+    <Card className={cn("transition-colors py-4 gap-3", href && "cursor-pointer hover:bg-muted/40")} onClick={href ? () => router.push(href) : undefined}>
       <CardHeader className="pb-0">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <CardTitle className="text-base">
-              <Link href={href} className="hover:underline" onClick={(e) => e.stopPropagation()}>
-                {row.name}
-              </Link>
+              {href ? (
+                <Link href={href} className="hover:underline" onClick={(e) => e.stopPropagation()}>
+                  {row.name}
+                </Link>
+              ) : (
+                <span>{row.name}</span>
+              )}
             </CardTitle>
             {primaryCol?.description && row[primaryCol.description] && <CardDescription className="mt-1 text-xs">{row[primaryCol.description]}</CardDescription>}
           </div>
@@ -250,7 +258,7 @@ export function DataTable({ data, columns, getRowHref, searchPlaceholder = "Sear
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((row) => (
-              <RowCard key={row.id} row={row} columns={columns} href={getRowHref(row)} menuItems={menuItems} router={router} />
+              <RowCard key={row.id} row={row} columns={columns} href={getRowHref ? getRowHref(row) : null} menuItems={menuItems} router={router} />
             ))}
           </div>
         )
@@ -276,9 +284,9 @@ export function DataTable({ data, columns, getRowHref, searchPlaceholder = "Sear
                 </TableRow>
               ) : (
                 filtered.map((row) => {
-                  const href = getRowHref(row);
+                  const href = getRowHref ? getRowHref(row) : null;
                   return (
-                    <TableRow key={row.id} className="cursor-pointer" onClick={() => router.push(href)}>
+                    <TableRow key={row.id} className={href ? "cursor-pointer" : ""} onClick={href ? () => router.push(href) : undefined}>
                       {columns.map((col) => (
                         <TableCell key={col.key} className={cellAlign(col)}>
                           {renderCell(col, row, href)}

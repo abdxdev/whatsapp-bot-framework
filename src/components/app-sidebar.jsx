@@ -3,12 +3,12 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, Bot, ShieldBan, BarChart3, CreditCard, Settings, Store, Blocks, UserRound, ShieldCheck, ChevronRight, ArrowLeft, Bell, Sparkles } from "lucide-react";
+import { Users, Bot, ShieldBan, BarChart3, CreditCard, Settings, Store, Blocks, UserRound, ShieldCheck, ChevronRight, ArrowLeft, Bell, Sparkles, Terminal } from "lucide-react";
 
 import { NavUser } from "@/components/nav-user";
 import { TeamSwitcher } from "@/components/team-switcher";
 import { Logo } from "@/components/logo";
-import { groups, getGroup } from "@/lib/data";
+import { groups, getGroup, getService, getServiceDefinition } from "@/lib/data";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem, SidebarSeparator } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
@@ -61,6 +61,7 @@ function getGroupNav(groupId, group) {
       })),
     },
     { type: "link", label: "Participants", icon: UserRound, href: `/dashboard/${groupId}/participants` },
+    { type: "link", label: "Blacklist", icon: ShieldBan, href: `/dashboard/${groupId}/blacklist` },
     { type: "separator" },
     { type: "link", label: "Group Settings", icon: Settings, href: `/dashboard/${groupId}/group-settings` },
   ];
@@ -73,7 +74,26 @@ function getAccountNav() {
 
 /** Build the nav config array for a selected service. */
 function getServiceNav(groupId, serviceId, service) {
-  return [{ type: "back", label: "Back to Group", href: `/dashboard/${groupId}` }, { type: "label", text: service.name }, { type: "link", label: "Roles", icon: ShieldCheck, href: `/dashboard/${groupId}/${serviceId}/roles` }, { type: "separator" }, { type: "link", label: "Service Settings", icon: Settings, href: `/dashboard/${groupId}/${serviceId}/service-settings` }];
+  const serviceDef = getServiceDefinition(serviceId);
+  const commands = serviceDef?.commands ? Object.entries(serviceDef.commands) : [];
+
+  return [
+    { type: "back", label: "Back to Group", href: `/dashboard/${groupId}` },
+    { type: "label", text: service.name },
+    {
+      type: "collapsible",
+      label: "Commands",
+      icon: Terminal,
+      href: `/dashboard/${groupId}/${serviceId}/commands`,
+      items: commands.map(([key]) => ({
+        label: key,
+        href: `/dashboard/${groupId}/${serviceId}/commands#${key}`,
+      })),
+    },
+    { type: "link", label: "Roles", icon: ShieldCheck, href: `/dashboard/${groupId}/${serviceId}/roles` },
+    { type: "separator" },
+    { type: "link", label: "Service Settings", icon: Settings, href: `/dashboard/${groupId}/${serviceId}/service-settings` },
+  ];
 }
 
 // ── Generic renderer ────────────────────────────────────────────
@@ -150,7 +170,7 @@ function NavItem({ item, pathname }) {
             <SidebarMenuSub>
               {item.items.map((sub) => (
                 <SidebarMenuSubItem key={sub.href}>
-                  <SidebarMenuSubButton asChild isActive={pathname === sub.href}>
+                  <SidebarMenuSubButton asChild isActive={pathname === sub.href || pathname === sub.href.split("#")[0]}>
                     <Link href={sub.href}>
                       <span>{sub.label}</span>
                     </Link>
@@ -190,7 +210,7 @@ export function AppSidebar({ user, ...props }) {
   const staticRoutes = ["private-services", "blacklist", "usage", "billing", "common-settings", "account"];
 
   const group = groupId && !staticRoutes.includes(groupId) ? getGroup(groupId) : null;
-  const service = serviceId ? group?.services?.find((s) => String(s.id) === String(serviceId)) : null;
+  const service = serviceId ? getService(groupId, serviceId) : null;
 
   // Pick the right nav config based on context
   const navItems = groupId === "account" ? getAccountNav() : service ? getServiceNav(groupId, serviceId, service) : group ? getGroupNav(groupId, group) : getDashboardNav();
