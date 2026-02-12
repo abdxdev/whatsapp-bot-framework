@@ -1,0 +1,156 @@
+{
+    "int": {
+        "description": "Integer number",
+        "examples": [
+            "10",
+            "42",
+            "-5"
+        ]
+    },
+    "bool": {
+        "description": "true or false",
+        "examples": [
+            "true",
+            "false"
+        ]
+    },
+    "word": {
+        "description": "Single word without spaces",
+        "examples": [
+            "hello",
+            "command123"
+        ]
+    },
+    "string": {
+        "description": "String, optionally unquoted if at the very end (escape quotes with \\), may span multiple lines.",
+        "examples": [
+            "Unquoted string at the end",
+            "\"String with \\\"escaped quotes\\\" inside\"",
+            "Multi-line\nstring example"
+        ]
+    },
+    "float": {
+        "description": "Floating point number",
+        "examples": [
+            "3.14",
+            "-0.001",
+            "2.0"
+        ]
+    },
+    "date": {
+        "description": "Date in YYYY-MM-DD format",
+        "examples": [
+            "2026-01-31",
+            "2025-12-25"
+        ]
+    },
+    "time": {
+        "description": "Time in HH:MM or HH:MM:SS format (24-hour)",
+        "examples": [
+            "14:30",
+            "09:15:00"
+        ]
+    },
+    "datetime": {
+        "description": "Date and time in ISO 8601 format",
+        "examples": [
+            "2026-01-31T14:30:00",
+            "2025-12-25T09:15"
+        ]
+    },
+    "email": {
+        "description": "Valid email address",
+        "examples": [
+            "example@example.com",
+            "user.name@domain.co"
+        ]
+    },
+    "GroupId": {
+        "description": "Unique identifier for a group",
+        "examples": [
+            "123@g.us",
+            "456@g.us"
+        ],
+        "derivedFrom": "email"
+    },
+    "UserId": {
+        "description": "Unique identifier for a user",
+        "examples": [
+            "12345@s.whatsapp.net",
+            "67890@s.whatsapp.net"
+        ],
+        "derivedFrom": "email"
+    },
+    "Role": {
+        "description": "Role assigned to a user",
+        "examples": [
+            "admin",
+            "member",
+            "parent",
+            "child"
+        ],
+        "derivedFrom": "word"
+    },
+    "Service": {
+        "description": "Service identifier",
+        "examples": [
+            "exp",
+            "poll"
+        ],
+        "derivedFrom": "word"
+    },
+    "Command": {
+        "description": "Command identifier",
+        "examples": [
+            "add",
+            "edit",
+            "create"
+        ],
+        "derivedFrom": "word"
+    },
+    "Arguments": {
+        "description": "Arguments",
+        "derivedFrom": "string",
+        "examples": [
+            "arg1 arg2 arg3",
+            "some free text here"
+        ]
+    },
+    "Setting": {
+        "description": "Setting identifier. It could also be the object path for object settings.",
+        "examples": [
+            "settingName",
+            "setting1"
+        ],
+        "derivedFrom": "word"
+    },
+    "list": {
+        "description": "Delimited list of items of the specified type. If delimiter is inside the type, use escape character \\ before it.",
+        "delimiter": ",",
+        "min": 0,
+        "max": null
+    },
+    "unionType": {
+        "description": "Type could be one of the options separated by pipe symbol",
+        "delimiter": "|"
+    },
+    "object": {
+        "description": "Complex object with defined properties",
+        "requiresProperties": true
+    },
+    "any": {
+        "description": "Any value type (no validation)",
+        "examples": [
+            "string",
+            "123",
+            "true",
+            "{...}"
+        ]
+    },
+    "*": {
+        "description": "Wildcard type representing all possible values",
+        "examples": [
+            "*"
+        ]
+    }
+}

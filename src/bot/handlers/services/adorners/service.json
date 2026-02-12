@@ -1,0 +1,101 @@
+{
+    "name": "adorners",
+    "description": "Manage events for Adorners community",
+    "oneCmdPerMsg": true,
+    "roles": [
+        "member",
+        "manager"
+    ],
+    "serviceSettings": {
+        "apiKey": {
+            "type": "string",
+            "description": "GenAI API key for the event management service",
+            "default": ""
+        }
+    },
+    "commands": {
+        "add": {
+            "description": "Add an event",
+            "AIConfig": {
+                "readWithAI": true,
+                "useServiceSettings": "apiKey"
+            },
+            "syntaxes": [
+                {
+                    "allowedRoles": [
+                        "member",
+                        "manager"
+                    ],
+                    "parameters": {
+                        "eventDate": {
+                            "type": "date",
+                            "description": "Date of the event",
+                            "optional": true
+                        },
+                        "eventPlace": {
+                            "type": "string",
+                            "description": "Place of the event"
+                        },
+                        "companyName": {
+                            "type": "string",
+                            "description": "Name of the company"
+                        },
+                        "phoneNo": {
+                            "type": "string",
+                            "description": "Contact phone number"
+                        },
+                        "ballons": {
+                            "type": "int",
+                            "description": "Number of ballons"
+                        },
+                        "employeeNames": {
+                            "type": "string",
+                            "isList": true,
+                            "description": "List of employees involved"
+                        },
+                        "details": {
+                            "type": "string",
+                            "description": "Additional details about the event"
+                        }
+                    }
+                }
+            ]
+        },
+        "list": {
+            "description": "List all events",
+            "syntaxes": [
+                {
+                    "allowedRoles": [
+                        "member",
+                        "manager"
+                    ],
+                    "parameters": {}
+                }
+            ]
+        },
+        "edit": {
+            "description": "Edit an event",
+            "syntaxes": [
+                {
+                    "allowedRoles": [
+                        "admin"
+                    ],
+                    "parameters": {
+                        "eventNo": {
+                            "type": "int",
+                            "description": "Event number"
+                        },
+                        "detailNo": {
+                            "type": "int",
+                            "description": "Detail number of the event"
+                        },
+                        "newValue": {
+                            "type": "string",
+                            "description": "New value for the detail"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
