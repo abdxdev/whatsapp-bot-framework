@@ -10,7 +10,6 @@ import typesDefinition from '../definitions/types.json' with { type: 'json' };
 export class TypeParser {
     constructor() {
         this.types = typesDefinition || {};
-        this.listDelimiter = this.types.list?.delimiter || ',';
         this.unionDelimiter = this.types.unionType?.delimiter || '|';
     }
 
@@ -45,7 +44,7 @@ export class TypeParser {
     }
 
     /**
-     * Parse a list of values
+     * Parse a list of values, supporting ranges (e.g. "1,3-5,8" → [1,3,4,5,8])
      */
     parseList(value, type, paramDef) {
         const items = this.splitList(String(value));
@@ -55,6 +54,18 @@ export class TypeParser {
             const trimmed = item.trim();
             if (!trimmed) continue;
 
+            // Check for range notation (e.g. "3-7") — only for numeric types
+            const rangeMatch = trimmed.match(/^(\d+)\s*-\s*(\d+)$/);
+            if (rangeMatch && (type === 'int' || type === 'float' || type === 'number')) {
+                const start = parseInt(rangeMatch[1], 10);
+                const end = parseInt(rangeMatch[2], 10);
+                const step = start <= end ? 1 : -1;
+                for (let i = start; step > 0 ? i <= end : i >= end; i += step) {
+                    results.push(i);
+                }
+                continue;
+            }
+
             const parsed = this.parse(trimmed, type, { ...paramDef, isList: false });
             if (!parsed.success) {
                 return { success: false, error: `Invalid list item: ${parsed.error}` };
@@ -62,25 +73,27 @@ export class TypeParser {
             results.push(parsed.value);
         }
 
-        // Check min/max constraints
-        const min = paramDef.min ?? this.types.list?.min ?? 0;
-        const max = paramDef.max ?? this.types.list?.max ?? null;
+        // Deduplicate while preserving order
+        const unique = [...new Set(results)];
 
-        if (results.length < min) {
+        // Check min/max constraints
+        const min = paramDef.min ?? 0;
+        const max = paramDef.max ?? null;
+
+        if (unique.length < min) {
             return { success: false, error: `List must have at least ${min} items` };
         }
-        if (max !== null && results.length > max) {
+        if (max !== null && unique.length > max) {
             return { success: false, error: `List must have at most ${max} items` };
         }
 
-        return { success: true, value: results };
+        return { success: true, value: unique };
     }
 
     /**
-     * Split a list string respecting escape characters
+     * Split a list string by comma, respecting escape characters
      */
     splitList(value) {
-        const delimiter = this.listDelimiter;
         const items = [];
         let current = '';
         let escaped = false;
@@ -91,7 +104,7 @@ export class TypeParser {
                 escaped = false;
             } else if (char === '\\') {
                 escaped = true;
-            } else if (char === delimiter) {
+            } else if (char === ',') {
                 items.push(current);
                 current = '';
             } else {

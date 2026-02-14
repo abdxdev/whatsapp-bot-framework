@@ -2,10 +2,10 @@
     "name": "root",
     "description": "Root-level commands available to root users",
     "settings": {
-        "isEnabled": {
-            "type": "bool",
-            "description": "Enable or disable the bot",
-            "default": true
+        "status": {
+            "type": "string",
+            "description": "Bot status: active or paused",
+            "default": "active"
         },
         "rootPrefix": {
             "type": "string",
@@ -69,6 +69,11 @@
             "type": "string",
             "description": "Prefix to invoke chat bot features",
             "default": "^\\.(?!\\.)\\s*([\\s\\S]+)$"
+        },
+        "localInvokePrefix": {
+            "type": "word",
+            "description": "Prefix for Local Mode",
+            "default": "local"
         }
     },
     "allowInPrivateChat": true,

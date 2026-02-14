@@ -100,11 +100,15 @@ export class Bot {
             return {
                 handled: true,
                 response,
-                sent: result.success
+                sent: result.success,
+                details: result
             };
         }
 
-        return { handled: !!response };
+        return {
+            handled: !!response,
+            reason: response ? undefined : 'no_response_from_router'
+        };
     }
 
     /**
@@ -178,7 +182,7 @@ export class Bot {
                 deviceId: this.whatsappClient.deviceId
             },
             bot: {
-                enabled: rootSettings?.isEnabled ?? true,
+                enabled: rootSettings?.status !== 'paused',
                 services: services.length,
                 serviceNames: services
             }

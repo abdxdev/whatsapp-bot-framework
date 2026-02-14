@@ -29,6 +29,13 @@
             "Multi-line\nstring example"
         ]
     },
+    "text": {
+        "description": "Text, may span multiple lines. Same as string but larger",
+        "examples": [
+            "Hello",
+            "Hello\nWorld"
+        ]
+    },
     "float": {
         "description": "Floating point number",
         "examples": [

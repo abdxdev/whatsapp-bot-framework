@@ -22,8 +22,8 @@ export class PermissionManager {
 
         // Check if bot is enabled globally
         const rootSettings = await this.stateManager.getRootSettings();
-        if (!rootSettings?.isEnabled) {
-            return { allowed: false, reason: 'Bot is disabled globally' };
+        if (rootSettings?.status !== 'active') {
+            return { allowed: false, reason: 'Bot is paused globally' };
         }
 
         // Check global blacklist
@@ -37,8 +37,8 @@ export class PermissionManager {
             const chatSettings = await this.stateManager.getChatSettings(chatId);
 
             // Check if bot is enabled in this chat
-            if (chatSettings?.adminSettings?.isEnabled === false) {
-                return { allowed: false, reason: 'Bot is disabled in this chat' };
+            if (chatSettings?.adminSettings?.status === 'paused') {
+                return { allowed: false, reason: 'Bot is paused in this chat' };
             }
 
             // Check group-level blacklist
@@ -119,8 +119,8 @@ export class PermissionManager {
 
         // Check if service is enabled
         const serviceSettings = await this.stateManager.getServiceSettings(chatId, service);
-        if (serviceSettings?.isEnabled === false) {
-            return { allowed: false, reason: `Service '${service}' is disabled` };
+        if (serviceSettings?.status === 'paused') {
+            return { allowed: false, reason: `Service '${service}' is paused` };
         }
 
         // Get service definition to check if private chat is allowed

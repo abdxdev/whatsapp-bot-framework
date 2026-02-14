@@ -9,7 +9,7 @@ import axios from 'axios';
 
 export class WhatsAppClient {
     constructor(options = {}) {
-        this.baseUrl = options.baseUrl || process.env.WHATSAPP_API_URL || 'http://localhost:3000';
+        this.baseUrl = options.baseUrl || process.env.WHATSAPP_API_URL;
         this.deviceId = options.deviceId || process.env.WHATSAPP_DEVICE_ID;
 
         this.client = axios.create({
@@ -316,6 +316,18 @@ export class WhatsAppClient {
                 data: response.data,
                 isLoggedIn: response.data?.results?.is_logged_in || false
             };
+        } catch (error) {
+            return this.handleError(error);
+        }
+    }
+
+    /**
+     * Get connected devices
+     */
+    async getDevices() {
+        try {
+            const response = await this.client.get('/devices');
+            return { success: true, data: response.data };
         } catch (error) {
             return this.handleError(error);
         }

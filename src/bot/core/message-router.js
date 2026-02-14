@@ -35,13 +35,6 @@ export class MessageRouter {
     async route(message) {
         const context = this.buildContext(message);
 
-        // Log incoming message
-        await this.stateManager.logAudit({
-            userId: context.userId,
-            chatId: context.chatId,
-            message: context.body,
-            status: 'pending'
-        });
 
         try {
             // Check for active interactive session first
@@ -68,15 +61,6 @@ export class MessageRouter {
         } catch (error) {
             console.error('Error routing message:', error);
 
-            // Log error
-            await this.stateManager.logAudit({
-                userId: context.userId,
-                chatId: context.chatId,
-                message: context.body,
-                parsedCommand: null,
-                status: 'error',
-                error: error.message
-            });
 
             return this.createErrorResponse(context, 'An error occurred while processing your command');
         }
@@ -114,16 +98,6 @@ export class MessageRouter {
 
         // Execute the command
         const result = await this.executeCommand(context, parsed);
-
-        // Log success
-        await this.stateManager.logAudit({
-            userId: context.userId,
-            chatId: context.chatId,
-            message: context.body,
-            parsedCommand: parsed,
-            status: 'success',
-            response: result?.text?.substring(0, 500)
-        });
 
         return result;
     }
@@ -233,13 +207,10 @@ export class MessageRouter {
             return this.createResponse(context, r.text);
         }
 
-        // Multiple responses - combine them
-        let combinedText = '';
-        for (let i = 0; i < responses.length; i++) {
-            const r = responses[i];
-            if (i > 0) combinedText += '\n';
-            combinedText += r.error || r.text;
-        }
+        // Multiple responses - combine them with \n but if there are some multiple line outputs, combine all with \n---\n
+        const anyMultiLine = responses.some(r => (r.error || r.text || '').includes('\n'));
+        const separator = anyMultiLine ? '\n---\n' : '\n';
+        const combinedText = responses.map(r => r.error || r.text).join(separator);
 
         return this.createResponse(context, combinedText);
     }
@@ -272,17 +243,14 @@ export class MessageRouter {
      * Parse message with full context
      */
     async parseMessage(context) {
-        // Get settings for parsing
+        const isLocal = process.env.NODE_ENV === 'development' || (process.env.WHATSAPP_API_URL || '').includes('localhost');
         const rootSettings = await this.stateManager.getRootSettings();
         const adminSettings = await this.stateManager.getChatSettings(context.chatId);
         const installedServices = await this.stateManager.getInstalledServices(context.chatId);
 
-        // WhatsApp group admins are already stored in DB when service is installed
-        // and updated via participant join/leave webhooks - no need to fetch from API
-
-        // Parse the message
         return this.commandParser.parse(context.body, {
             ...context,
+            isLocal,
             rootSettings,
             adminSettings,
             installedServices

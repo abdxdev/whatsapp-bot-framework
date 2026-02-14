@@ -22,10 +22,8 @@ export class CommandParser {
     findCommandKey(commands, input) {
         if (!commands || !input) return null;
 
-        // Direct match first
         if (commands[input]) return input;
 
-        // Case-insensitive search
         const lowerInput = input.toLowerCase();
         for (const key of Object.keys(commands)) {
             if (key.toLowerCase() === lowerInput) {
@@ -42,48 +40,22 @@ export class CommandParser {
      * @returns {object|object[]} Parsed command info, array of commands, or null if not a command
      */
     parse(message, context) {
-        const { adminSettings = {}, rootSettings = {} } = context;
-        const prefixPattern = rootSettings.invokePrefixPattern || '^\\.(?!\\.)\\s*([\\s\\S]+)$';
+        const { adminSettings = {}, rootSettings = {}, isLocal = false } = context;
+        const prefixPattern = rootSettings.invokePrefixPattern;
         const prefixRegex = new RegExp(prefixPattern);
 
-        // Split message into lines
         const lines = message.split('\n').map(l => l.trim()).filter(l => l);
         if (lines.length === 0) {
             return null;
         }
 
-        // Check if FIRST line has command prefix
-        const firstLineHasPrefix = prefixRegex.test(lines[0]);
-
-        // If first line does NOT have prefix, try args-only mode for ALL lines
-        // Only process args-only if the first line successfully parses as args-only
-        if (!firstLineHasPrefix) {
-            const firstLineArgsOnly = this.parseArgsOnlyLine(lines[0], context);
-            if (firstLineArgsOnly) {
-                // First line matches args-only - parse all lines as args-only only
-                const argsOnlyCommands = [firstLineArgsOnly];
-                for (let i = 1; i < lines.length; i++) {
-                    const parsed = this.parseArgsOnlyLine(lines[i], context);
-                    if (parsed) {
-                        argsOnlyCommands.push(parsed);
-                    }
-                    // Silently skip lines that don't match args-only pattern
-                }
-                return argsOnlyCommands.length === 1 ? argsOnlyCommands[0] : argsOnlyCommands;
-            }
-            // First line doesn't match args-only - fall through to check for prefixed commands
-        }
-
-        // First line has prefix OR args-only didn't match
-        // Parse each line: prefixed commands OR args-only
         const commands = [];
 
         for (const line of lines) {
             const match = line.match(prefixRegex);
             if (match) {
-                // Line has prefix - parse as command
                 const commandPart = match[1].trim();
-                const parsed = this.parseCommandString(commandPart, context);
+                const parsed = this.parseCommandString(commandPart, context, isLocal);
                 if (parsed) {
                     commands.push(parsed);
                 }
@@ -113,23 +85,23 @@ export class CommandParser {
      */
     parseArgsOnlyLine(line, context) {
         const { adminSettings = {}, installedServices = [] } = context;
-        const argsOnlyCommand = adminSettings.argsOnlyCommand;
+        const argsOnlyCmdSetting = adminSettings.argsOnlyCmdSetting;
 
-        if (!argsOnlyCommand || !argsOnlyCommand.service || !argsOnlyCommand.command) {
+        if (!argsOnlyCmdSetting || !argsOnlyCmdSetting.service || !argsOnlyCmdSetting.command) {
             return null;
         }
 
         // Check if the service is installed in this chat
-        if (!installedServices.includes(argsOnlyCommand.service)) {
+        if (!installedServices.includes(argsOnlyCmdSetting.service)) {
             return null;
         }
 
-        const service = this.serviceLoader.getService(argsOnlyCommand.service);
+        const service = this.serviceLoader.getService(argsOnlyCmdSetting.service);
         if (!service) {
             return null;
         }
 
-        const command = service.commands?.[argsOnlyCommand.command];
+        const command = service.commands?.[argsOnlyCmdSetting.command];
         if (!command) {
             return null;
         }
@@ -151,8 +123,8 @@ export class CommandParser {
 
         return {
             type: 'service',
-            service: argsOnlyCommand.service,
-            command: argsOnlyCommand.command,
+            service: argsOnlyCmdSetting.service,
+            command: argsOnlyCmdSetting.command,
             args,
             rawArgs: line,
             argsOnly: true,
@@ -165,10 +137,11 @@ export class CommandParser {
      * @param {string} commandString - Command string without prefix
      * @param {object} context - Message context
      */
-    parseCommandString(commandString, context) {
+    parseCommandString(commandString, context, isLocal) {
         const { adminSettings = {}, rootSettings = {} } = context;
-        const rootPrefix = rootSettings.rootPrefix || 'root';
-        const adminPrefix = rootSettings.adminPrefix || 'admin';
+        const rootPrefix = rootSettings.rootPrefix;
+        const adminPrefix = rootSettings.adminPrefix;
+        const localPrefix = rootSettings.localInvokePrefix;
         const disableServicePrefix = adminSettings.disableServicePrefix;
 
         const parts = this.tokenize(commandString);
@@ -176,15 +149,19 @@ export class CommandParser {
             return null;
         }
 
-        const firstPart = parts[0].toLowerCase();
+        parts[0] = parts[0].toLowerCase();
+
+        // Check if it is local
+        if ((parts[0] === localPrefix.toLowerCase()) === isLocal) parts.shift();
+        else return null;
 
         // Check for root command
-        if (firstPart === rootPrefix.toLowerCase()) {
+        if (parts[0] === rootPrefix.toLowerCase()) {
             return this.parseRootCommand(parts.slice(1), context);
         }
 
         // Check for admin command
-        if (firstPart === adminPrefix.toLowerCase()) {
+        if (parts[0] === adminPrefix.toLowerCase()) {
             return this.parseAdminCommand(parts.slice(1), context);
         }
 
@@ -201,9 +178,6 @@ export class CommandParser {
                 return this.parseServiceCommand(disableServicePrefix, parts, context);
             }
         }
-
-        // Try to parse as service.command or service command
-        return this.parseServiceCommandFromParts(parts, context);
     }
 
     /**
@@ -293,37 +267,6 @@ export class CommandParser {
     }
 
     /**
-     * Parse service command from parts
-     * Handles formats: service.command args, service command args
-     */
-    parseServiceCommandFromParts(parts, context) {
-        const firstPart = parts[0];
-
-        // Check for service.command format
-        if (firstPart.includes('.')) {
-            const [serviceName, cmdPart] = firstPart.split('.', 2);
-            const service = this.serviceLoader.getService(serviceName.toLowerCase());
-
-            if (service) {
-                const commandName = this.findCommandKey(service.commands, cmdPart);
-                if (commandName) {
-                    return this.parseServiceCommand(serviceName.toLowerCase(), [commandName, ...parts.slice(1)], context);
-                }
-            }
-        }
-
-        // Check for service command format
-        const serviceName = firstPart.toLowerCase();
-        const service = this.serviceLoader.getService(serviceName);
-
-        if (service) {
-            return this.parseServiceCommand(serviceName, parts.slice(1), context);
-        }
-
-        return { type: 'unknown', raw: parts.join(' '), error: `Unknown service or command: ${firstPart}` };
-    }
-
-    /**
      * Parse a service-level command
      */
     parseServiceCommand(serviceName, parts, context) {
@@ -337,7 +280,7 @@ export class CommandParser {
             return { type: 'service', service: serviceName, command: null, error: 'No command specified' };
         }
 
-        const inputCommand = parts[0].toLowerCase();
+        const inputCommand = parts[0];
 
         // Find command case-insensitively
         const commandName = this.findCommandKey(service.commands, inputCommand);

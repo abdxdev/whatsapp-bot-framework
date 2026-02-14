@@ -87,17 +87,17 @@ export class HelpGenerator {
      * Generate help for a specific service
      * @param {string} serviceName - Service name
      * @param {array} userRoles - User's roles
-     * @param {object} argsOnlyCommand - ArgsOnly command settings from chat (optional)
+     * @param {object} argsOnlyCmdSetting - ArgsOnly command settings from chat (optional)
      */
-    async generateServiceHelp(serviceName, userRoles = [], argsOnlyCommand = null) {
+    async generateServiceHelp(serviceName, userRoles = [], argsOnlyCmdSetting = null) {
         const service = this.serviceLoader.getService(serviceName);
         if (!service) {
             return `Service '${serviceName}' not found`;
         }
 
         // Check if this service has argsOnly configured
-        const isArgsOnlyService = argsOnlyCommand?.service === serviceName;
-        const argsOnlyCmd = argsOnlyCommand?.command;
+        const isArgsOnlyService = argsOnlyCmdSetting?.service === serviceName;
+        const argsOnlyCmd = argsOnlyCmdSetting?.command;
 
         let help = `*${service.name}* - ${service.description}`;
         if (isArgsOnlyService) {
@@ -128,9 +128,9 @@ export class HelpGenerator {
      * @param {string} scope - Command scope (builtin, admin, root, service)
      * @param {string} commandName - Command name
      * @param {string} serviceName - Service name (for service scope)
-     * @param {object} argsOnlyCommand - ArgsOnly command settings from chat (optional)
+     * @param {object} argsOnlyCmdSetting - ArgsOnly command settings from chat (optional)
      */
-    async generateCommandHelp(scope, commandName, serviceName = null, argsOnlyCommand = null) {
+    async generateCommandHelp(scope, commandName, serviceName = null, argsOnlyCmdSetting = null) {
         const { rootPrefix, adminPrefix } = await this.getPrefixes();
 
         let commandDef, scopeDef;
@@ -161,8 +161,8 @@ export class HelpGenerator {
         }
 
         // Check argsOnly settings for service commands
-        const isArgsOnlyService = scope === 'service' && argsOnlyCommand?.service === serviceName;
-        const isDefaultCmd = isArgsOnlyService && argsOnlyCommand?.command === commandName;
+        const isArgsOnlyService = scope === 'service' && argsOnlyCmdSetting?.service === serviceName;
+        const isDefaultCmd = isArgsOnlyService && argsOnlyCmdSetting?.command === commandName;
 
         let help = `*${commandName}*`;
         if (isDefaultCmd) {

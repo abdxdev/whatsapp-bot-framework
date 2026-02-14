@@ -11,7 +11,7 @@ import mongoose from 'mongoose';
 const BotStateSchema = new mongoose.Schema({
     rootUsers: [String],
     rootSettings: {
-        isEnabled: { type: Boolean, default: true },
+        status: { type: String, enum: ['active', 'paused'], default: 'active' },
         rootPrefix: { type: String, default: 'root' },
         adminPrefix: { type: String, default: 'admin' },
         AIConfig: {
@@ -25,7 +25,8 @@ const BotStateSchema = new mongoose.Schema({
             services: [String],
             commands: [String]
         }],
-        invokePrefixPattern: { type: String, default: '^\\.(?!\\.)\\s*([\\s\\S]+)$' }
+        invokePrefixPattern: { type: String, default: '^\\.(?!\\.)\\s*([\\s\\S]+)$' },
+        localInvokePrefix: { type: String, default: 'local' }
     },
     chats: {
         type: Map,
@@ -33,8 +34,8 @@ const BotStateSchema = new mongoose.Schema({
             chatType: { type: String, enum: ['group', 'private'] },
             adminSettings: {
                 disableServicePrefix: String,
-                isEnabled: { type: Boolean, default: true },
-                argsOnlyCommand: {
+                status: { type: String, enum: ['active', 'paused'], default: 'active' },
+                argsOnlyCmdSetting: {
                     service: String,
                     command: String
                 },
@@ -67,43 +68,19 @@ const BotStateSchema = new mongoose.Schema({
     sessions: {
         type: Map,
         of: mongoose.Schema.Types.Mixed
-    },
-    cache: {
-        blacklistIndex: {
-            type: Map,
-            of: mongoose.Schema.Types.Mixed
-        }
     }
 }, {
     timestamps: true,
     minimize: false
 });
 
-// Audit Log Schema
-const AuditLogSchema = new mongoose.Schema({
-    timestamp: { type: Date, default: Date.now },
-    userId: String,
-    chatId: String,
-    message: String,
-    parsedCommand: mongoose.Schema.Types.Mixed,
-    status: { type: String, enum: ['success', 'error', 'pending'] },
-    response: String,
-    error: String
-}, { timestamps: true });
-
 // Create models
-let BotState, AuditLog;
+let BotState;
 
 try {
     BotState = mongoose.model('BotState');
 } catch {
     BotState = mongoose.model('BotState', BotStateSchema);
-}
-
-try {
-    AuditLog = mongoose.model('AuditLog');
-} catch {
-    AuditLog = mongoose.model('AuditLog', AuditLogSchema);
 }
 
 export class StateManager {
@@ -139,7 +116,8 @@ export class StateManager {
 
         try {
             if (mongoose.connection.readyState !== 1) {
-                await mongoose.connect(this.dbUri);
+                const dbName = process.env.MONGODB_DB_NAME || 'test';
+                await mongoose.connect(this.dbUri, { dbName });
             }
             this.connected = true;
 
@@ -164,7 +142,7 @@ export class StateManager {
             this.state = new BotState({
                 rootUsers: this.initialRootId ? [this.initialRootId] : [],
                 rootSettings: {
-                    isEnabled: true,
+                    status: 'active',
                     rootPrefix: 'root',
                     adminPrefix: 'admin',
                     AIConfig: {
@@ -173,13 +151,11 @@ export class StateManager {
                         systemPrompt: 'You are a helpful assistant.'
                     },
                     blackList: [],
-                    invokePrefixPattern: '^\\.(?!\\.)\\s*([\\s\\S]+)$'
+                    invokePrefixPattern: '^\\.(?!\\.)\\s*([\\s\\S]+)$',
+                    localInvokePrefix: 'local'
                 },
                 chats: new Map(),
-                sessions: new Map(),
-                cache: {
-                    blacklistIndex: new Map()
-                }
+                sessions: new Map()
             });
 
             await this.state.save();
@@ -317,8 +293,8 @@ export class StateManager {
                 chatType,
                 adminSettings: {
                     disableServicePrefix: null,
-                    isEnabled: true,
-                    argsOnlyCommand: null,
+                    status: 'active',
+                    argsOnlyCmdSetting: null,
                     replyOnParsingError: false,
                     blackList: []
                 },
@@ -519,7 +495,7 @@ export class StateManager {
             chat.services.set(serviceName, {
                 roles: rolesMap,
                 serviceSettings: new Map([
-                    ['isEnabled', true]
+                    ['status', 'active']
                 ]),
                 storage: new Map()
             });
@@ -630,13 +606,11 @@ export class StateManager {
     }
 
     async setServiceSetting(chatId, serviceName, key, value) {
-        const chat = await this.ensureChat(chatId);
+        const chat = this.state.chats.get(this.encodeKey(chatId));
+        const service = chat?.services?.get(serviceName);
 
-        if (!chat.services?.has(serviceName)) {
-            await this.installService(chatId, serviceName);
-        }
+        if (!service) return;
 
-        const service = chat.services.get(serviceName);
         if (!service.serviceSettings) {
             service.serviceSettings = new Map();
         }
@@ -713,13 +687,11 @@ export class StateManager {
     }
 
     async addUserRole(chatId, serviceName, userId, role) {
-        const chat = await this.ensureChat(chatId);
+        const chat = this.state.chats.get(this.encodeKey(chatId));
+        const service = chat?.services?.get(serviceName);
 
-        if (!chat.services?.has(serviceName)) {
-            await this.installService(chatId, serviceName);
-        }
+        if (!service) return; // Service not installed, do nothing
 
-        const service = chat.services.get(serviceName);
         if (!service.roles) {
             service.roles = new Map();
         }
@@ -786,13 +758,11 @@ export class StateManager {
     }
 
     async setStorage(chatId, serviceName, storageName, data) {
-        const chat = await this.ensureChat(chatId);
+        const chat = this.state.chats.get(this.encodeKey(chatId));
+        const service = chat?.services?.get(serviceName);
 
-        if (!chat.services?.has(serviceName)) {
-            await this.installService(chatId, serviceName);
-        }
+        if (!service) return; // Service not installed, do nothing
 
-        const service = chat.services.get(serviceName);
         if (!service.storage) {
             service.storage = new Map();
         }
@@ -834,21 +804,6 @@ export class StateManager {
         }
     }
 
-    // ============================================
-    // AUDIT LOG OPERATIONS
-    // ============================================
-
-    async logAudit(entry) {
-        const log = new AuditLog(entry);
-        await log.save();
-    }
-
-    async getAuditLogs(filter = {}, limit = 100) {
-        return AuditLog.find(filter)
-            .sort({ timestamp: -1 })
-            .limit(limit)
-            .lean();
-    }
 }
 
 export default StateManager;

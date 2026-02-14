@@ -7,12 +7,12 @@
             "description": "Disable service prefix routing (command-only mode)",
             "default": null
         },
-        "isEnabled": {
-            "type": "bool",
-            "description": "Enable or disable the bot",
-            "default": true
+        "status": {
+            "type": "string",
+            "description": "Bot status in this chat: active or paused",
+            "default": "active"
         },
-        "argsOnlyCommand": {
+        "argsOnlyCmdSetting": {
             "type": "object",
             "properties": {
                 "service": {

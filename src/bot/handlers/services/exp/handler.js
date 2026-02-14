@@ -13,7 +13,6 @@ export async function add(ctx) {
   }
 
   await storage.addItem('expenses', {
-    id: Date.now().toString(36),
     item,
     amount,
     addedBy: targetUserId,
@@ -151,15 +150,16 @@ export async function remove(ctx) {
   // Parse itemNos - handle both string (from interactive) and array (from command line)
   let itemNumbers;
   if (typeof itemNos === 'string') {
-    // Parse comma-separated string like "1,2,3"
+    console.log(itemNumbers, typeof itemNumbers)
     itemNumbers = itemNos.split(',').map(s => {
       const num = parseInt(s.trim(), 10);
       return isNaN(num) ? null : num;
     }).filter(n => n !== null);
-    console.log('TODO: its f')
   } else if (Array.isArray(itemNos)) {
+    console.log(itemNos, typeof itemNos)
     itemNumbers = itemNos.map(n => typeof n === 'number' ? n : parseInt(n, 10));
   } else {
+    console.log(itemNos, typeof itemNos)
     // Single number
     itemNumbers = [typeof itemNos === 'number' ? itemNos : parseInt(itemNos, 10)];
   }
@@ -177,10 +177,10 @@ export async function remove(ctx) {
 
   // Get unique item numbers and sort in descending order to avoid index shifting issues
   const uniqueItemNos = [...new Set(itemNumbers)].sort((a, b) => b - a);
-  
+
   // Collect entries to remove
   const entriesToRemove = uniqueItemNos.map(itemNo => entries[itemNo - 1]);
-  
+
   // Delete all entries
   for (const entry of entriesToRemove) {
     await storage.deleteItem('expenses', entry._id);

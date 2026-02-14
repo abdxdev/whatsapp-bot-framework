@@ -93,8 +93,8 @@ export async function listServices(ctx) {
     let response = `*Services in ${chatId}*\n`;
     for (const name of installed) {
         const settings = await stateManager.getServiceSettings(chatId, name);
-        const enabled = settings.isEnabled !== false;
-        response += `\n${enabled ? '+' : '-'} ${name}`;
+        const active = settings.status !== 'paused';
+        response += `\n${active ? '+' : '-'} ${name}`;
     }
     return response;
 }

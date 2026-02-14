@@ -58,7 +58,7 @@ export async function help(ctx) {
     }
 
     const adminSettings = await stateManager.getChatSettings(chatId);
-    const argsOnlyCommand = adminSettings?.argsOnlyCommand;
+    const argsOnlyCmdSetting = adminSettings?.argsOnlyCmdSetting;
 
     const service = serviceLoader.getService(firstPart);
     if (service) {
@@ -70,21 +70,21 @@ export async function help(ctx) {
 
         if (secondPart) {
             const cmd = findCommand(service.commands, secondPart);
-            if (cmd) return await helpGenerator.generateCommandHelp('service', cmd.key, firstPart, argsOnlyCommand);
+            if (cmd) return await helpGenerator.generateCommandHelp('service', cmd.key, firstPart, argsOnlyCmdSetting);
             return `Unknown: ${secondPart}`;
         }
-        return await helpGenerator.generateServiceHelp(firstPart, serviceRoles, argsOnlyCommand);
+        return await helpGenerator.generateServiceHelp(firstPart, serviceRoles, argsOnlyCmdSetting);
     }
 
     const builtinDef = serviceLoader.getBuiltinDefinition();
     const builtinCmd = findCommand(builtinDef?.commands, firstPart);
     if (builtinCmd) return await helpGenerator.generateCommandHelp('builtin', builtinCmd.key);
 
-    if (argsOnlyCommand?.service) {
-        const argsOnlyService = serviceLoader.getService(argsOnlyCommand.service);
+    if (argsOnlyCmdSetting?.service) {
+        const argsOnlyService = serviceLoader.getService(argsOnlyCmdSetting.service);
         if (argsOnlyService) {
             const cmd = findCommand(argsOnlyService.commands, firstPart);
-            if (cmd) return await helpGenerator.generateCommandHelp('service', cmd.key, argsOnlyCommand.service, argsOnlyCommand);
+            if (cmd) return await helpGenerator.generateCommandHelp('service', cmd.key, argsOnlyCmdSetting.service, argsOnlyCmdSetting);
         }
     }
 
@@ -145,8 +145,17 @@ export async function status(ctx) {
     const rootSettings = await stateManager.getRootSettings();
     const services = serviceLoader.getServiceNames();
 
-    let response = `Bot: ${rootSettings?.isEnabled ? 'on' : 'off'}`;
-    response += `\nWhatsApp: ${waStatus.isLoggedIn ? 'connected' : 'disconnected'}`;
+    let response = `Bot: ${rootSettings?.status === 'paused' ? 'paused' : 'active'}`;
+
+    const devices = await whatsappClient.getDevices();
+    if (devices.success && devices.data?.results?.length) {
+        response += '\nWhatsApp Devices:';
+        for (const d of devices.data.results) {
+            response += `\n• ${d.display_name} (${d.state}) - ${d.jid}`;
+        }
+    } else {
+        response += `\nWhatsApp: ${waStatus.isLoggedIn ? 'connected' : 'disconnected'}`;
+    }
     response += `\nServices: ${services.length} (${services.join(', ')})`;
     response += `\nMemory: ${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB`;
 

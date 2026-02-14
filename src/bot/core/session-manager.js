@@ -4,9 +4,11 @@
  * Handles interactive command sessions for multi-step argument collection
  */
 
+import { TypeParser } from './type-parser.js';
 export class SessionManager {
     constructor(stateManager) {
         this.stateManager = stateManager;
+        this.typeParser = new TypeParser();
         this.sessionTimeout = 5 * 60 * 1000; // 5 minutes default
     }
 
@@ -160,14 +162,47 @@ export class SessionManager {
             return { action: 'complete', session };
         }
 
-        const updatedSession = await this.updateSession(session.key, currentArg, message.trim());
+        // Parse the value through TypeParser using the parameter definition
+        const parsedValue = this.parseArgValue(session, currentArg, message.trim());
+
+        const updatedSession = await this.updateSession(session.key, currentArg, parsedValue);
 
         if (this.isSessionComplete(updatedSession)) {
             await this.deleteSession(session.key);
             return { action: 'complete', session: updatedSession };
         }
 
-        return { action: 'continue', session: updatedSession, argName: currentArg, argValue: message.trim() };
+        return { action: 'continue', session: updatedSession, argName: currentArg, argValue: parsedValue };
+    }
+
+    /**
+     * Parse a raw string value using TypeParser based on the parameter definition
+     */
+    parseArgValue(session, argName, rawValue) {
+        if (!this.serviceLoader) return rawValue;
+
+        let commandDef;
+        if (session.type === 'service') {
+            const serviceDef = this.serviceLoader.getService(session.service);
+            commandDef = serviceDef?.commands?.[session.command];
+        } else if (session.type === 'admin') {
+            commandDef = this.serviceLoader.getAdminDefinition()?.commands?.[session.command];
+        } else if (session.type === 'root') {
+            commandDef = this.serviceLoader.getRootDefinition()?.commands?.[session.command];
+        } else if (session.type === 'builtin') {
+            commandDef = this.serviceLoader.getBuiltinDefinition()?.commands?.[session.command];
+        }
+
+        if (!commandDef) return rawValue;
+
+        const syntaxes = commandDef.syntaxes || [{ parameters: commandDef.syntax?.parameters || {} }];
+        const parameters = syntaxes[session.syntaxIndex || 0]?.parameters || {};
+        const paramDef = parameters[argName];
+
+        if (!paramDef) return rawValue;
+
+        const parsed = this.typeParser.parse(rawValue, paramDef.type, paramDef);
+        return parsed.success ? parsed.value : rawValue;
     }
 
     /**

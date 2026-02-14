@@ -135,9 +135,13 @@ export async function setServiceSetting(ctx) {
     const serviceDef = serviceLoader.getService(service);
     if (!serviceDef) return `Service '${service}' not found`;
 
+    const isInstalled = await stateManager.isServiceInstalled(chatId, service);
+    if (!isInstalled) return `Service '${service}' not installed`;
+
     const settingsDef = serviceDef.serviceSettings;
-    if (settingsDef && !settingsDef[setting]) {
-        return `Unknown: ${setting}\nValid: ${Object.keys(settingsDef).join(', ')}`;
+    if (!settingsDef || !settingsDef[setting]) {
+        const validKeys = settingsDef ? Object.keys(settingsDef).join(', ') : 'none';
+        return `Unknown: ${setting}\nValid: ${validKeys}`;
     }
 
     await stateManager.setServiceSetting(chatId, service, setting, value);

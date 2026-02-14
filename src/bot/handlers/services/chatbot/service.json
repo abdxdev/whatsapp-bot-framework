@@ -18,7 +18,7 @@
             "default": "ChatBot"
         },
         "systemMessage": {
-            "type": "string",
+            "type": "text",
             "description": "System message to set the behavior of the bot",
             "default": "You are a helpful assistant."
         },

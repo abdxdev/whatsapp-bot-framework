@@ -67,8 +67,8 @@ export async function POST(request) {
 
         return Response.json({
             success: true,
-            handled: result.handled,
-            event: webhookData.event
+            event: webhookData.event,
+            ...result
         });
 
     } catch (error) {
