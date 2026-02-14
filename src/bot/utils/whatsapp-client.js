@@ -11,6 +11,9 @@ export class WhatsAppClient {
     constructor(options = {}) {
         this.baseUrl = options.baseUrl || process.env.WHATSAPP_API_URL;
         this.deviceId = options.deviceId || process.env.WHATSAPP_DEVICE_ID;
+        if (process.env.WHATSAPP_API_BASIC_AUTH) {
+            [this.username, this.password] = process.env.WHATSAPP_API_BASIC_AUTH.split(':');
+        }
 
         this.client = axios.create({
             baseURL: this.baseUrl,
@@ -18,7 +21,13 @@ export class WhatsAppClient {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Device-Id': this.deviceId
-            }
+            },
+            ...(this.username && this.password && {
+                auth: {
+                    username: this.username,
+                    password: this.password
+                }
+            })
         });
     }
 
