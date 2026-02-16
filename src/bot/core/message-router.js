@@ -207,7 +207,6 @@ export class MessageRouter {
             return this.createResponse(context, r.text);
         }
 
-        // Multiple responses - combine them with \n but if there are some multiple line outputs, combine all with \n---\n
         const anyMultiLine = responses.some(r => (r.error || r.text || '').includes('\n'));
         const separator = anyMultiLine ? '\n---\n' : '\n';
         const combinedText = responses.map(r => r.error || r.text).join(separator);
@@ -219,21 +218,21 @@ export class MessageRouter {
      * Build context object from webhook message
      */
     buildContext(message) {
-        const chatId = message.payload?.chat_id || message.chat_id;
+        const payload = message.payload;
+        const chatId = payload?.chat_id;
         const isGroup = chatId?.endsWith('@g.us');
 
         return {
-            messageId: message.payload?.id || message.id,
+            messageId: payload?.id,
             chatId,
-            userId: message.payload?.from || message.from,
-            userName: message.payload?.from_name || message.from_name,
-            body: message.payload?.body || message.body || '',
-            timestamp: message.payload?.timestamp || message.timestamp,
+            userId: payload?.from,
+            userName: payload?.from_name,
+            body: payload?.body || '',
+            timestamp: payload?.timestamp,
             isGroup,
             isPrivate: !isGroup,
-            repliedToId: message.payload?.replied_to_id,
-            quotedBody: message.payload?.quoted_body,
-            // These will be filled by permission checks
+            repliedToId: payload?.replied_to_id,
+            quotedBody: payload?.quoted_body,
             whatsappGroupAdmins: [],
             userRoles: []
         };

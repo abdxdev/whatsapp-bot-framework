@@ -53,8 +53,7 @@ export async function POST(request) {
         // Parse webhook data
         const webhookData = JSON.parse(rawBody);
 
-        console.log('📨 Webhook received:', webhookData.event, webhookData.payload?.id);
-        console.log(webhookData.payload)
+        console.log('📨 Webhook received:', webhookData);
 
         // Get or initialize bot
         const bot = getBot();

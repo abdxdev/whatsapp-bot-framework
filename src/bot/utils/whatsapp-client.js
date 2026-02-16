@@ -264,21 +264,14 @@ export class WhatsAppClient {
                 params: { group_id: groupId }
             });
 
-            console.log('📋 Group info response:', JSON.stringify(response.data, null, 2));
-
             const participants = response.data.results.Participants;
-
-            // Extract admins and members using PhoneNumber (not LID which is useless)
             const admins = [];
             const members = [];
 
             for (const p of participants) {
-                console.log('👤 Participant:', JSON.stringify(p));
-
                 const userId = p.PhoneNumber;
                 const isAdmin = p.IsAdmin || p.IsSuperAdmin;
 
-                // Only use valid WhatsApp IDs (ending with @s.whatsapp.net)
                 if (typeof userId === 'string' && userId.includes('@s.whatsapp.net')) {
                     if (isAdmin) {
                         admins.push(userId);
@@ -287,8 +280,6 @@ export class WhatsAppClient {
                     }
                 }
             }
-
-            console.log(`📋 Parsed participants - Admins: ${admins.length}, Members: ${members.length}`);
 
             return {
                 success: true,

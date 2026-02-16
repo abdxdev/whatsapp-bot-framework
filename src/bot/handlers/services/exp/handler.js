@@ -21,26 +21,33 @@ export async function add(ctx) {
 
   const entries = await storage.getStorage('expenses');
   const userEntries = entries.filter(e => e.addedBy === targetUserId);
+  userEntries.sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
   const total = userEntries.reduce((sum, e) => sum + Number(e.amount || 0), 0);
   return `Added: ${item} - ${amount} (new total: ${total})`;
 }
 
 export async function edit(ctx) {
-  const { args, userId, storage, userRoles } = ctx;
-  const { itemNo, price, item } = args;
+  const { args, userId, storage, state, userRoles } = ctx;
+  const { childNo, itemNo, price, item } = args;
 
   if (!itemNo) return 'Item number required';
 
   let entries = await storage.getStorage('expenses');
-  const isParent = userRoles.includes('parent');
 
-  if (!isParent) entries = entries.filter(e => e.addedBy === userId);
+  let targetUserId = userId;
+  if (userRoles.includes('parent') && childNo !== undefined) {
+    const children = await state.getUsersWithRole('child');
+    if (childNo < 1 || childNo > children.length) return `Invalid child (1-${children.length})`;
+    targetUserId = children[childNo - 1];
+  }
+
+  entries = entries.filter(e => e.addedBy === targetUserId);
   entries.sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
 
   if (itemNo < 1 || itemNo > entries.length) return `Invalid item (1-${entries.length})`;
 
   const entry = entries[itemNo - 1];
-  if (entry.addedBy !== userId && !isParent) return 'Cannot edit others expenses';
+  if (entry.addedBy !== userId && !userRoles.includes('parent')) return 'Cannot edit others expenses';
 
   const updates = {
     editedBy: userId,
@@ -114,6 +121,7 @@ export async function clear(ctx) {
 
   const entries = await storage.getStorage('expenses');
   const mine = entries?.filter(e => e.addedBy === userId) || [];
+  mine.sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
 
   if (!mine.length) return 'Nothing to clear';
 
@@ -147,36 +155,16 @@ export async function remove(ctx) {
   entries = entries.filter(e => e.addedBy === targetUserId);
   entries.sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
 
-  // Parse itemNos - handle both string (from interactive) and array (from command line)
-  let itemNumbers;
-  if (typeof itemNos === 'string') {
-    console.log(itemNumbers, typeof itemNumbers)
-    itemNumbers = itemNos.split(',').map(s => {
-      const num = parseInt(s.trim(), 10);
-      return isNaN(num) ? null : num;
-    }).filter(n => n !== null);
-  } else if (Array.isArray(itemNos)) {
-    console.log(itemNos, typeof itemNos)
-    itemNumbers = itemNos.map(n => typeof n === 'number' ? n : parseInt(n, 10));
-  } else {
-    console.log(itemNos, typeof itemNos)
-    // Single number
-    itemNumbers = [typeof itemNos === 'number' ? itemNos : parseInt(itemNos, 10)];
-  }
-
-  if (itemNumbers.length === 0) {
-    return 'Invalid item number(s)';
-  }
 
   // Validate all item numbers
-  for (const itemNo of itemNumbers) {
+  for (const itemNo of itemNos) {
     if (itemNo < 1 || itemNo > entries.length) {
       return `Invalid item number ${itemNo} (valid range: 1-${entries.length})`;
     }
   }
 
   // Get unique item numbers and sort in descending order to avoid index shifting issues
-  const uniqueItemNos = [...new Set(itemNumbers)].sort((a, b) => b - a);
+  const uniqueItemNos = [...new Set(itemNos)].sort((a, b) => b - a);
 
   // Collect entries to remove
   const entriesToRemove = uniqueItemNos.map(itemNo => entries[itemNo - 1]);

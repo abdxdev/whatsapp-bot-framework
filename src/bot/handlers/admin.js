@@ -3,28 +3,24 @@ export async function addRoles(ctx) {
     const { service, userIds, roles } = args;
 
     if (!service) return 'Service required';
-
-    const userIdList = Array.isArray(userIds) ? userIds : (userIds ? [userIds] : []);
-    const roleList = Array.isArray(roles) ? roles : (roles ? [roles] : []);
-
-    if (!userIdList.length) return 'User ID(s) required';
-    if (!roleList.length) return 'Role(s) required';
+    if (!userIds?.length) return 'User IDs required';
+    if (!roles?.length) return 'Roles required';
 
     const isInstalled = await stateManager.isServiceInstalled(chatId, service);
     if (!isInstalled) return `Service '${service}' not installed`;
 
     const serviceDef = serviceLoader.getService(service);
     const validRoles = new Set(['admin', 'member', ...(serviceDef?.roles || [])]);
-    const invalidRoles = roleList.filter(r => !validRoles.has(r));
+    const invalidRoles = roles.filter(r => !validRoles.has(r));
     if (invalidRoles.length) return `Invalid: ${invalidRoles.join(', ')}\nValid: ${[...validRoles].join(', ')}`;
 
-    for (const userId of userIdList) {
-        for (const role of roleList) {
+    for (const userId of userIds) {
+        for (const role of roles) {
             await stateManager.addUserRole(chatId, service, userId, role);
         }
     }
 
-    return `Added ${roleList.join(', ')} to ${userIdList.length} user(s)`;
+    return `Added ${roles.join(', ')} to ${userIds.length} users`;
 }
 
 export async function removeRoles(ctx) {
@@ -32,12 +28,11 @@ export async function removeRoles(ctx) {
     const { service, userIds, roles } = args;
 
     if (!service) return 'Service required';
+    if (!userIds?.length) return 'User IDs required';
+    if (!roles?.length) return 'Roles required';
 
-    const userIdList = Array.isArray(userIds) ? userIds : (userIds ? [userIds] : []);
-    const roleList = Array.isArray(roles) ? roles : (roles ? [roles] : []);
-
-    if (!userIdList.length) return 'User ID(s) required';
-    if (!roleList.length) return 'Role(s) required';
+    if (!userIdList.length) return 'User IDs required';
+    if (!roleList.length) return 'Roles required';
 
     const isInstalled = await stateManager.isServiceInstalled(chatId, service);
     if (!isInstalled) return `Service '${service}' not installed`;
@@ -48,7 +43,7 @@ export async function removeRoles(ctx) {
         }
     }
 
-    return `Removed ${roleList.join(', ')} from ${userIdList.length} user(s)`;
+    return `Removed ${roleList.join(', ')} from ${userIdList.length} users`;
 }
 
 export async function listRoles(ctx) {

@@ -139,24 +139,19 @@ export class Bot {
                     continue;
                 }
 
-                if (action === 'join') {
-                    // New member joined - add them as 'member' to all installed services
-                    await this.stateManager.addMemberToServices(chatId, userId, false);
-                    console.log(`👋 Added member ${userId} to services in ${chatId}`);
-                } else if (action === 'leave') {
-                    // Member left - remove them from all installed services
-                    await this.stateManager.removeMemberFromServices(chatId, userId);
-                    console.log(`👋 Removed member ${userId} from services in ${chatId}`);
-                } else if (action === 'promote') {
-                    // Member promoted to admin - update their role
-                    await this.stateManager.addMemberToServices(chatId, userId, true);
-                    console.log(`⬆️ Promoted ${userId} to admin in ${chatId}`);
-                } else if (action === 'demote') {
-                    // Admin demoted to member
-                    await this.stateManager.addMemberToServices(chatId, userId, false);
-                    console.log(`⬇️ Demoted ${userId} in ${chatId}`);
-                } else {
-                    console.log(`❓ Unknown action: ${action}`);
+                switch (action) {
+                    case 'join':
+                        await this.stateManager.addMemberToServices(chatId, userId, false);
+                        break;
+                    case 'leave':
+                        await this.stateManager.removeMemberFromServices(chatId, userId);
+                        break;
+                    case 'promote':
+                        await this.stateManager.addMemberToServices(chatId, userId, true);
+                        break;
+                    case 'demote':
+                        await this.stateManager.addMemberToServices(chatId, userId, false);
+                        break;
                 }
             }
 
